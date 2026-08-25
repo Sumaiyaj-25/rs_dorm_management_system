@@ -1,4 +1,3 @@
-```php
 <?php
 require 'includes/session_check.php';
 require 'config/db.php';
@@ -118,4 +117,3 @@ if ($student_id) {
 
 </body>
 </html>
-```
