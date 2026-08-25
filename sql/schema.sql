@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS Parcel (
 
     Receive_Time DATETIME NULL,
 
+    OTP_Code VARCHAR(50),
+
     Student_ID INT,
 
     Handled_By INT,
@@ -47,6 +49,7 @@ CREATE TABLE IF NOT EXISTS Parcel (
     FOREIGN KEY (Student_ID)
         REFERENCES Student(Student_ID)
         ON DELETE SET NULL
+);
 
 CREATE TABLE IF NOT EXISTS Room (
     Room_No VARCHAR(10) PRIMARY KEY,
@@ -73,6 +76,7 @@ CREATE TABLE IF NOT EXISTS Maintenance_request (
 
     FOREIGN KEY (Room_No)
         REFERENCES Room(Room_No)
+);
 CREATE TABLE IF NOT EXISTS meal (
     token_no INT AUTO_INCREMENT PRIMARY KEY,
     meal_type VARCHAR(50), -- e.g., 'Breakfast', 'Lunch', 'Dinner'
