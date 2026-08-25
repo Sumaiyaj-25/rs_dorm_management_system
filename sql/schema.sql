@@ -21,3 +21,27 @@ CREATE TABLE IF NOT EXISTS Login (
     FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID) ON DELETE CASCADE,
     UNIQUE KEY uniq_student_login (Student_ID)
 );
+
+CREATE TABLE IF NOT EXISTS Parcel (
+
+    P_ID INT AUTO_INCREMENT PRIMARY KEY,
+
+    Tracking_Number VARCHAR(100) NOT NULL,
+
+    Status VARCHAR(50) NOT NULL,
+
+    Locker_Number VARCHAR(50),
+
+    Arrival_Date DATETIME,
+
+    Receive_Time DATETIME NULL,
+
+    Student_ID INT,
+
+    Handled_By INT,
+
+    FOREIGN KEY (Student_ID)
+        REFERENCES Student(Student_ID)
+        ON DELETE SET NULL
+
+);
