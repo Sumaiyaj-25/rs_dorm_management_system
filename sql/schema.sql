@@ -38,35 +38,23 @@ CREATE TABLE IF NOT EXISTS meal (
     FOREIGN KEY (claimed_by) REFERENCES Student(Student_ID) ON DELETE SET NULL
 );
 
-<<<<<<< HEAD
-CREATE TABLE Preferences (
-    PreferenceID INT AUTO_INCREMENT PRIMARY KEY,
-    Student_ID INT NOT NULL,
-=======
 CREATE TABLE IF NOT EXISTS Preferences (
     PreferenceID INT AUTO_INCREMENT PRIMARY KEY,
-    Student_ID INT NOT NULL UNIQUE,
->>>>>>> e5c32af (Add roommate recommendation feature)
+    Student_ID INT NOT NULL,
     Cleanliness VARCHAR(50),
     NoiseTolerance VARCHAR(50),
     StudyHabit VARCHAR(50),
     SleepingHabit VARCHAR(50),
     Others VARCHAR(255),
 
-<<<<<<< HEAD
-    FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID),
+    FOREIGN KEY (Student_ID)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE,
+
     UNIQUE KEY uniq_student_pref (Student_ID)
 );
 
-CREATE TABLE Compatible (
-=======
-    FOREIGN KEY (Student_ID)
-        REFERENCES Student(Student_ID)
-        ON DELETE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS Compatible (
->>>>>>> e5c32af (Add roommate recommendation feature)
     Requesting_Student_ID INT NOT NULL,
     Potential_Roommate_ID INT NOT NULL,
     Score DECIMAL(5,2),
@@ -74,15 +62,9 @@ CREATE TABLE IF NOT EXISTS Compatible (
 
     PRIMARY KEY (Requesting_Student_ID, Potential_Roommate_ID),
 
-<<<<<<< HEAD
-    FOREIGN KEY (Requesting_Student_ID) REFERENCES Student(Student_ID),
-    FOREIGN KEY (Potential_Roommate_ID) REFERENCES Student(Student_ID)
-);
-=======
     FOREIGN KEY (Requesting_Student_ID)
         REFERENCES Student(Student_ID),
 
     FOREIGN KEY (Potential_Roommate_ID)
         REFERENCES Student(Student_ID)
 );
->>>>>>> e5c32af (Add roommate recommendation feature)
