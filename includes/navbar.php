@@ -16,6 +16,14 @@
             $_SESSION['role'] === 'student'
         ): ?>
 
+            <a href="parcel_list.php">
+                My Parcels
+            </a>
+
+            <a href="verify_parcel.php">
+                Collect Parcel
+            </a>
+
             <a href="maintenance_submit.php">
                 New Request
             </a>
@@ -30,6 +38,12 @@
             $_SESSION['role'] === 'admin'
         ): ?>
 
+            <a href="admin_parcel.php">
+                Add Parcel
+            </a>
+
+            <a href="admin_parcel_list.php">
+                Manage Parcels
             <a href="admin_maintenance.php">
                 Maintenance
             </a>
@@ -46,4 +60,5 @@
         </a>
 
     </div>
+
 </nav>

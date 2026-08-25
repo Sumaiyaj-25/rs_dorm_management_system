@@ -26,6 +26,31 @@ CREATE TABLE IF NOT EXISTS Login (
     UNIQUE KEY uniq_student_login (Student_ID)
 );
 
+CREATE TABLE IF NOT EXISTS Parcel (
+
+    P_ID INT AUTO_INCREMENT PRIMARY KEY,
+
+    Tracking_Number VARCHAR(100) NOT NULL,
+
+    Status VARCHAR(50) NOT NULL,
+
+    Locker_Number VARCHAR(50),
+
+    Arrival_Date DATETIME,
+
+    Receive_Time DATETIME NULL,
+
+    OTP_Code VARCHAR(50),
+
+    Student_ID INT,
+
+    Handled_By INT,
+
+    FOREIGN KEY (Student_ID)
+        REFERENCES Student(Student_ID)
+        ON DELETE SET NULL
+);
+
 CREATE TABLE IF NOT EXISTS Room (
     Room_No VARCHAR(10) PRIMARY KEY,
     Dorm_name VARCHAR(50),
@@ -51,6 +76,7 @@ CREATE TABLE IF NOT EXISTS Maintenance_request (
 
     FOREIGN KEY (Room_No)
         REFERENCES Room(Room_No)
+);
 CREATE TABLE IF NOT EXISTS meal (
     token_no INT AUTO_INCREMENT PRIMARY KEY,
     meal_type VARCHAR(50), -- e.g., 'Breakfast', 'Lunch', 'Dinner'
