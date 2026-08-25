@@ -15,30 +15,18 @@
             $_SESSION['role'] === 'student'
         ): ?>
 
-            <a href="maintenance_submit.php">
-                New Request
-            </a>
-
-            <a href="maintenance_list.php">
-                My Requests
-            </a>
-
             <a href="parcel_list.php">
-    My Parcels
-</a>
+                My Parcels
+            </a>
 
-<a href="verify_parcel.php">
-    Collect Parcel
-</a>
+            <a href="verify_parcel.php">
+                Collect Parcel
+            </a>
 
         <?php elseif (
             isset($_SESSION['role']) &&
             $_SESSION['role'] === 'admin'
         ): ?>
-
-            <a href="admin_maintenance.php">
-                Maintenance
-            </a>
 
             <a href="admin_parcel.php">
                 Add Parcel
