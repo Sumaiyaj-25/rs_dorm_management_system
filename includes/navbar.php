@@ -25,11 +25,11 @@
             </a>
 
             <a href="maintenance_submit.php">
-                New Request
+                New Maintenance Request
             </a>
 
             <a href="maintenance_list.php">
-                My Requests
+                My Maintenance Requests
             </a>
 
 
