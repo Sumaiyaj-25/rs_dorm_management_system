@@ -74,9 +74,7 @@ $stats_stmt->execute([
 $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 
-/* ----------------------------------------------------------
-   Incoming requests
----------------------------------------------------------- */
+
 
 $incoming_stmt = $pdo->prepare(
     "SELECT
@@ -100,11 +98,6 @@ $incoming_stmt->execute([$student_id]);
 
 $incoming = $incoming_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-/* ----------------------------------------------------------
-   Sent requests
----------------------------------------------------------- */
-
 $sent_stmt = $pdo->prepare(
     "SELECT
         m.Requesting_Student_ID,
@@ -119,13 +112,7 @@ $sent_stmt = $pdo->prepare(
      JOIN student s
        ON s.Student_ID = m.Potential_Roommate_ID
      WHERE m.Requesting_Student_ID = ?
-     ORDER BY
-        CASE
-            WHEN m.Status = 'Pending' THEN 1
-            WHEN m.Status = 'Accepted' THEN 2
-            WHEN m.Status = 'Rejected' THEN 3
-        END,
-        m.Score DESC"
+     ORDER BY m.Status, m.Score DESC"
 );
 
 $sent_stmt->execute([$student_id]);
@@ -133,52 +120,38 @@ $sent_stmt->execute([$student_id]);
 $sent = $sent_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-/* ----------------------------------------------------------
-   Accepted matches
----------------------------------------------------------- */
 
 $accepted_stmt = $pdo->prepare(
     "SELECT
         m.Requesting_Student_ID,
         m.Potential_Roommate_ID,
         m.Score,
-
-        CASE
-            WHEN m.Requesting_Student_ID = ?
-            THEN s2.FirstName
-            ELSE s1.FirstName
-        END AS FirstName,
-
-        CASE
-            WHEN m.Requesting_Student_ID = ?
-            THEN s2.LastName
-            ELSE s1.LastName
-        END AS LastName,
-
-        CASE
-            WHEN m.Requesting_Student_ID = ?
-            THEN s2.Department
-            ELSE s1.Department
-        END AS Department
-
+        s.FirstName,
+        s.LastName,
+        s.Department
      FROM compatible m
+     JOIN student s
+       ON s.Student_ID = m.Potential_Roommate_ID
+     WHERE m.Requesting_Student_ID = ?
+       AND m.Status = 'Accepted'
 
-     JOIN student s1
-       ON s1.Student_ID = m.Requesting_Student_ID
+     UNION
 
-     JOIN student s2
-       ON s2.Student_ID = m.Potential_Roommate_ID
-
-     WHERE
-        (m.Requesting_Student_ID = ?
-         OR m.Potential_Roommate_ID = ?)
-        AND m.Status = 'Accepted'"
+     SELECT
+        m.Requesting_Student_ID,
+        m.Potential_Roommate_ID,
+        m.Score,
+        s.FirstName,
+        s.LastName,
+        s.Department
+     FROM compatible m
+     JOIN student s
+       ON s.Student_ID = m.Requesting_Student_ID
+     WHERE m.Potential_Roommate_ID = ?
+       AND m.Status = 'Accepted'"
 );
 
 $accepted_stmt->execute([
-    $student_id,
-    $student_id,
-    $student_id,
     $student_id,
     $student_id
 ]);
