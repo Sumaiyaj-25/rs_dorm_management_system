@@ -91,3 +91,17 @@ CREATE TABLE IF NOT EXISTS meal (
     FOREIGN KEY (released_by) REFERENCES Student(Student_ID) ON DELETE SET NULL,
     FOREIGN KEY (claimed_by) REFERENCES Student(Student_ID) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS Staff (
+
+    Staff_ID INT AUTO_INCREMENT PRIMARY KEY,
+
+    Name VARCHAR(100) NOT NULL,
+
+    Phone_Number VARCHAR(20),
+
+    Email VARCHAR(100) UNIQUE,
+
+    Role VARCHAR(50)
+
+);
