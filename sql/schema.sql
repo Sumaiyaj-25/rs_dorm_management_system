@@ -105,3 +105,29 @@ CREATE TABLE IF NOT EXISTS Staff (
     Role VARCHAR(50)
 
 );
+
+CREATE TABLE IF NOT EXISTS Leave_Request (
+
+    Request_ID INT AUTO_INCREMENT PRIMARY KEY,
+
+    Leave_Date DATE NOT NULL,
+
+    Return_Date DATE NOT NULL,
+
+    Reason TEXT,
+
+    Status VARCHAR(20) DEFAULT 'Pending',
+
+    Student_ID INT NOT NULL,
+
+    Staff_ID INT NULL,
+
+    FOREIGN KEY (Student_ID)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (Staff_ID)
+        REFERENCES Staff(Staff_ID)
+        ON DELETE SET NULL
+
+);
