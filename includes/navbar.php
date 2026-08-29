@@ -33,6 +33,7 @@
 
             <a href="meals.php">
                 Meals
+            </a>
             <a href="room_transfer.php">
                 Room Transfer
             </a>

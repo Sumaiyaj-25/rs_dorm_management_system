@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS Preferences (
         REFERENCES Student(Student_ID)
         ON DELETE CASCADE,
 
+    UNIQUE KEY uniq_student_pref (Student_ID)
 );
 
 CREATE TABLE IF NOT EXISTS Leave_Request (
@@ -150,8 +151,6 @@ CREATE TABLE IF NOT EXISTS Leave_Request (
         REFERENCES Staff(Staff_ID)
         ON DELETE SET NULL
 
-);
-    UNIQUE KEY uniq_student_pref (Student_ID)
 );
 
 CREATE TABLE IF NOT EXISTS Compatible (
