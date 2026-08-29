@@ -28,6 +28,9 @@
                 My Maintenance Requests
             </a>
 
+            <a href="room_transfer.php">
+                Room Transfer
+            </a>
 
         <?php elseif (
             isset($_SESSION['role']) &&
@@ -40,8 +43,16 @@
 
             <a href="admin_parcel_list.php">
                 Manage Parcels
+            </a>
             <a href="admin_maintenance.php">
                 Maintenance
+            </a>
+            <a href="admin_room_transfer.php">
+                Room Transfers
+            </a>
+
+            <a href="admin_room_assignment.php">
+                Room Assignment
             </a>
 
         <?php endif; ?>
