@@ -165,48 +165,14 @@ if ($my_pref) {
             $student_id
         ]);
 
-    } else {
+        } else {
 
-        $cand_stmt = $pdo->prepare(
-            'SELECT
-                s.Student_ID,
-                s.FirstName,
-                s.LastName,
-                s.Department,
-                s.Gender,
-                p.Cleanliness,
-                p.NoiseTolerance,
-                p.StudyHabit,
-                p.SleepingHabit
-             FROM student s
-             JOIN preferences p
-               ON p.Student_ID = s.Student_ID
-             WHERE s.Student_ID <> ?
-               AND NOT EXISTS (
-                    SELECT 1
-                    FROM compatible m
-                    WHERE
-                        (
-                            (m.Requesting_Student_ID = ?
-                             AND m.Potential_Roommate_ID = s.Student_ID)
-                            OR
-                            (m.Requesting_Student_ID = s.Student_ID
-                             AND m.Potential_Roommate_ID = ?)
-                        )
-                        AND m.Status IN (\'Pending\', \'Accepted\')
-               )'
-        );
-
-        $cand_stmt->execute([
-            $student_id,
-            $student_id,
-            $student_id
-        ]);
-    }
-
-    $rows = $cand_stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($rows as $row) {
+        $cand_stmt = null;
+        }
+        $rows = $cand_stmt
+            ? $cand_stmt->fetchAll(PDO::FETCH_ASSOC)
+            : [];
+        foreach ($rows as $row) {
 
         $row['Score'] = calculateCompatibility($my_pref, $row);
 
