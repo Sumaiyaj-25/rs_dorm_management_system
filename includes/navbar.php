@@ -34,6 +34,11 @@
             <a href="meals.php">
                 Meals
             </a>
+            
+            <a href="mood_log.php">
+                My Mood
+            </a>
+
             <a href="room_transfer.php">
                 Room Transfer
             </a>
@@ -72,6 +77,10 @@
 
             <a href="admin_leave.php">
                 Manage Leave Requests
+            </a>
+
+            <a href="counselor_dashboard.php">
+                Well-Being Alerts
             </a>
 
         <?php endif; ?>
