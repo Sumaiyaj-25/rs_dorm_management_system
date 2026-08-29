@@ -167,3 +167,14 @@ CREATE TABLE IF NOT EXISTS Compatible (
     FOREIGN KEY (Potential_Roommate_ID)
         REFERENCES Student(Student_ID)
 );
+
+CREATE TABLE IF NOT EXISTS mood_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    log_date DATE NOT NULL,
+    mood_score INT NOT NULL CHECK (mood_score BETWEEN 1 AND 5),
+    
+    FOREIGN KEY (student_id)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE
+);
