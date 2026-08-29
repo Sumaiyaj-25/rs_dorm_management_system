@@ -24,10 +24,6 @@
                 Collect Parcel
             </a>
 
-            <a href="maintenance_submit.php">
-                New Maintenance Request
-            </a>
-
             <a href="maintenance_list.php">
                 My Maintenance Requests
             </a>
