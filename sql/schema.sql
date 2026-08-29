@@ -167,3 +167,27 @@ CREATE TABLE IF NOT EXISTS Compatible (
     FOREIGN KEY (Potential_Roommate_ID)
         REFERENCES Student(Student_ID)
 );
+
+CREATE TABLE Medical_Record (
+
+    R_ID INT AUTO_INCREMENT PRIMARY KEY,
+
+    Visit_Date DATE NOT NULL,
+
+    Diagnosis VARCHAR(255) NOT NULL,
+
+    Treatment TEXT,
+
+    Prescription TEXT,
+
+    Student_ID INT NOT NULL,
+
+    Staff_ID INT,
+
+    FOREIGN KEY (Student_ID)
+    REFERENCES Student(Student_ID),
+
+    FOREIGN KEY (Staff_ID)
+    REFERENCES Staff(Staff_ID)
+
+);

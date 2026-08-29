@@ -19,6 +19,10 @@
                 My Parcels
             </a>
 
+            <a href="my_medical_records.php">
+              My Medical Records
+            </a>
+
             <a href="verify_parcel.php">
                 Collect Parcel
             </a>
@@ -49,6 +53,10 @@
 
             <a href="admin_parcel_list.php">
                 Manage Parcels
+            </a>
+
+            <a href="medical_records.php">
+             Medical Records
             </a>
 
             <a href="admin_maintenance.php">
