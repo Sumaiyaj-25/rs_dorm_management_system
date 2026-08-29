@@ -1,3 +1,4 @@
+
 CREATE DATABASE IF NOT EXISTS dorm_management;
 USE dorm_management;
 
@@ -96,4 +97,35 @@ CREATE TABLE IF NOT EXISTS meal (
     FOREIGN KEY (student_id) REFERENCES Student(Student_ID) ON DELETE CASCADE,
     FOREIGN KEY (released_by) REFERENCES Student(Student_ID) ON DELETE SET NULL,
     FOREIGN KEY (claimed_by) REFERENCES Student(Student_ID) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS Preferences (
+    PreferenceID INT AUTO_INCREMENT PRIMARY KEY,
+    Student_ID INT NOT NULL,
+    Cleanliness VARCHAR(50),
+    NoiseTolerance VARCHAR(50),
+    StudyHabit VARCHAR(50),
+    SleepingHabit VARCHAR(50),
+    Others VARCHAR(255),
+
+    FOREIGN KEY (Student_ID)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE,
+
+    UNIQUE KEY uniq_student_pref (Student_ID)
+);
+
+CREATE TABLE IF NOT EXISTS Compatible (
+    Requesting_Student_ID INT NOT NULL,
+    Potential_Roommate_ID INT NOT NULL,
+    Score DECIMAL(5,2),
+    Status ENUM('Pending', 'Accepted', 'Rejected') DEFAULT 'Pending',
+
+    PRIMARY KEY (Requesting_Student_ID, Potential_Roommate_ID),
+
+    FOREIGN KEY (Requesting_Student_ID)
+        REFERENCES Student(Student_ID),
+
+    FOREIGN KEY (Potential_Roommate_ID)
+        REFERENCES Student(Student_ID)
 );
