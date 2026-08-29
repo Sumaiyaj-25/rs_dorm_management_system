@@ -1,5 +1,14 @@
+
 CREATE DATABASE IF NOT EXISTS dorm_management;
 USE dorm_management;
+
+CREATE TABLE IF NOT EXISTS Room (
+    Room_No VARCHAR(10) PRIMARY KEY,
+    Dorm_name VARCHAR(50),
+    Floor INT,
+    Capacity INT,
+    Status VARCHAR(20) DEFAULT 'Active'
+); 
 
 CREATE TABLE IF NOT EXISTS Student (
     Student_ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -9,7 +18,13 @@ CREATE TABLE IF NOT EXISTS Student (
     Phone_Number VARCHAR(20),
     Gender VARCHAR(10),
     Contributor_Points INT DEFAULT 0,
-    Department VARCHAR(50)
+    Department VARCHAR(50),
+    Room_No VARCHAR(10) NULL,
+
+    FOREIGN KEY (Room_No)
+        REFERENCES Room(Room_No)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Login (
@@ -49,14 +64,6 @@ CREATE TABLE IF NOT EXISTS Parcel (
     FOREIGN KEY (Student_ID)
         REFERENCES Student(Student_ID)
         ON DELETE SET NULL
-);
-
-CREATE TABLE IF NOT EXISTS Room (
-    Room_No VARCHAR(10) PRIMARY KEY,
-    Dorm_name VARCHAR(50),
-    Floor INT,
-    Capacity INT,
-    Status VARCHAR(20) DEFAULT 'Active'
 );
 
 CREATE TABLE IF NOT EXISTS Maintenance_request (
@@ -103,6 +110,19 @@ CREATE TABLE IF NOT EXISTS Staff (
     Email VARCHAR(100) UNIQUE,
 
     Role VARCHAR(50)
+);
+CREATE TABLE IF NOT EXISTS Preferences (
+    PreferenceID INT AUTO_INCREMENT PRIMARY KEY,
+    Student_ID INT NOT NULL,
+    Cleanliness VARCHAR(50),
+    NoiseTolerance VARCHAR(50),
+    StudyHabit VARCHAR(50),
+    SleepingHabit VARCHAR(50),
+    Others VARCHAR(255),
+
+    FOREIGN KEY (Student_ID)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE,
 
 );
 
@@ -130,4 +150,21 @@ CREATE TABLE IF NOT EXISTS Leave_Request (
         REFERENCES Staff(Staff_ID)
         ON DELETE SET NULL
 
+);
+    UNIQUE KEY uniq_student_pref (Student_ID)
+);
+
+CREATE TABLE IF NOT EXISTS Compatible (
+    Requesting_Student_ID INT NOT NULL,
+    Potential_Roommate_ID INT NOT NULL,
+    Score DECIMAL(5,2),
+    Status ENUM('Pending', 'Accepted', 'Rejected') DEFAULT 'Pending',
+
+    PRIMARY KEY (Requesting_Student_ID, Potential_Roommate_ID),
+
+    FOREIGN KEY (Requesting_Student_ID)
+        REFERENCES Student(Student_ID),
+
+    FOREIGN KEY (Potential_Roommate_ID)
+        REFERENCES Student(Student_ID)
 );

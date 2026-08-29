@@ -47,6 +47,11 @@ $requests = $stmt->fetchAll();
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
+     <div style="text-align: center; margin-top: 30px;">
+        <a href="maintenance_submit.php" class="btn btn-primary">
+            Submit New Maintenance Request
+        </a>
+    </div>
 </div>
 </body>
 </html>

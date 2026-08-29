@@ -6,20 +6,32 @@ require 'includes/categorize.php';
 $error = '';
 $success = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$student_id = $_SESSION['student_id'];
+
+$studentStmt = $pdo->prepare(
+    'SELECT s.Room_No, r.Dorm_name
+     FROM student s
+     LEFT JOIN room r ON r.Room_No = s.Room_No
+     WHERE s.Student_ID = ?'
+);
+
+$studentStmt->execute([$student_id]);
+$student = $studentStmt->fetch(PDO::FETCH_ASSOC);
+
+$roomNo = $student['Room_No'] ?? null;
+$dormName = $student['Dorm_name'] ?? null;
+
+if (!$roomNo) {
+    $error = 'You cannot submit a maintenance request because you have not been assigned a room yet.';
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $roomNo) {
 
     $description = trim($_POST['description'] ?? '');
-    $dormName    = trim($_POST['dorm_name'] ?? '');
-    $roomNo      = trim($_POST['room_no'] ?? '');
 
-   
-    if ($description === '' || $dormName === '' || $roomNo === '') {
+    if ($description === '') {
 
-        $error = 'Please enter the dorm name, room number, and describe the issue.';
-
-    } elseif (!in_array($dormName, ['Maloncho', 'Nikunjo'], true)) {
-
-        $error = 'Please select either Maloncho or Nikunjo.';
+        $error = 'Please describe the issue.';
 
     } else {
 
@@ -68,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-
         if ($error === '') {
 
             $result = categorizeRequest($description);
@@ -94,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $result['category'],
                 $result['priority'],
                 'Submitted',
-                $_SESSION['student_id'],
+                $student_id,
                 $roomNo,
                 $dormName
             ]);
@@ -107,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -129,9 +141,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php include 'includes/navbar.php'; ?>
 
+
 <div class="page">
 
     <h1>New Maintenance Request</h1>
+
 
     <?php if ($error): ?>
 
@@ -151,92 +165,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
 
-    <form
-        class="form-card"
-        method="POST"
-        enctype="multipart/form-data"
-    >
+    <?php if ($roomNo): ?>
 
-        <!-- DORM -->
+        <form
+            class="form-card"
+            method="POST"
+            enctype="multipart/form-data"
+        >
 
-        <label>
-            Dorm Name
+            <div class="request-meta">
 
-            <select name="dorm_name" required>
+                <span>
+                    Assigned Room:
+                    <strong><?= htmlspecialchars($roomNo) ?></strong>
+                </span>
 
-                <option value="">
-                    Select dorm
-                </option>
+                <span>
+                    Dorm:
+                    <strong><?= htmlspecialchars($dormName) ?></strong>
+                </span>
 
-                <option value="Maloncho">
-                    Maloncho
-                </option>
-
-                <option value="Nikunjo">
-                    Nikunjo
-                </option>
-
-            </select>
-
-        </label>
+            </div>
 
 
+            <label>
 
-        <label>
-            Room Number
+                Describe the issue
 
-            <input
-                type="text"
-                name="room_no"
-                placeholder="Enter your room number"
-                required
+                <textarea
+                    name="description"
+                    rows="5"
+                    required
+                    placeholder="e.g. The bathroom tap has been leaking since this morning."
+                ></textarea>
+
+            </label>
+
+
+            <label>
+
+                Photo (optional)
+
+                <input
+                    type="file"
+                    name="photo"
+                    accept=".jpg,.jpeg,.png,.webp"
+                >
+
+            </label>
+
+
+            <p class="hint">
+                Category and priority are assigned automatically based on your description.
+            </p>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
             >
+                Submit Request
+            </button>
 
-        </label>
-
-
-
-        <label>
-            Describe the issue
-
-            <textarea
-                name="description"
-                rows="5"
-                required
-                placeholder="e.g. The bathroom tap has been leaking since this morning."
-            ></textarea>
-
-        </label>
+        </form>
 
 
+    <?php else: ?>
 
-        <label>
-            Photo (optional)
+        <p class="empty-state">
 
-            <input
-                type="file"
-                name="photo"
-                accept=".jpg,.jpeg,.png,.webp"
-            >
+            You cannot submit a maintenance request because you have not
+            been assigned a room yet. Please contact the dorm administration
+            to get a room assigned.
 
-        </label>
-
-
-        <p class="hint">
-            Category and priority are assigned automatically based on your description.
         </p>
 
+    <?php endif; ?>
 
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Submit Request
-        </button>
-
-    </form>
 
 </div>
+
 
 </body>
 </html>

@@ -23,12 +23,8 @@
                 Collect Parcel
             </a>
 
-            <a href="maintenance_submit.php">
-                New Request
-            </a>
-
             <a href="maintenance_list.php">
-                My Requests
+                My Maintenance Requests
             </a>
 
             <a href="my_leaves.php">
@@ -37,6 +33,8 @@
 
             <a href="meals.php">
                 Meals
+            <a href="room_transfer.php">
+                Room Transfer
             </a>
 
         <?php elseif (
@@ -54,6 +52,13 @@
 
             <a href="admin_maintenance.php">
                 Maintenance
+            </a>
+            <a href="admin_room_transfer.php">
+                Room Transfers
+            </a>
+
+            <a href="admin_room_assignment.php">
+                Room Assignment
             </a>
 
             <a href="staff_add.php">
