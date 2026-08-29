@@ -1,6 +1,14 @@
 CREATE DATABASE IF NOT EXISTS dorm_management;
 USE dorm_management;
 
+CREATE TABLE IF NOT EXISTS Room (
+    Room_No VARCHAR(10) PRIMARY KEY,
+    Dorm_name VARCHAR(50),
+    Floor INT,
+    Capacity INT,
+    Status VARCHAR(20) DEFAULT 'Active'
+); 
+
 CREATE TABLE IF NOT EXISTS Student (
     Student_ID INT AUTO_INCREMENT PRIMARY KEY,
     FirstName VARCHAR(50) NOT NULL,
@@ -9,7 +17,13 @@ CREATE TABLE IF NOT EXISTS Student (
     Phone_Number VARCHAR(20),
     Gender VARCHAR(10),
     Contributor_Points INT DEFAULT 0,
-    Department VARCHAR(50)
+    Department VARCHAR(50),
+    Room_No VARCHAR(10) NULL,
+
+    FOREIGN KEY (Room_No)
+        REFERENCES Room(Room_No)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Login (
@@ -49,14 +63,6 @@ CREATE TABLE IF NOT EXISTS Parcel (
     FOREIGN KEY (Student_ID)
         REFERENCES Student(Student_ID)
         ON DELETE SET NULL
-);
-
-CREATE TABLE IF NOT EXISTS Room (
-    Room_No VARCHAR(10) PRIMARY KEY,
-    Dorm_name VARCHAR(50),
-    Floor INT,
-    Capacity INT,
-    Status VARCHAR(20) DEFAULT 'Active'
 );
 
 CREATE TABLE IF NOT EXISTS Maintenance_request (
