@@ -287,11 +287,21 @@ function selected_if($value, $option)
                 type="submit"
                 class="btn btn-primary"
             >
-            Save Preferences
-        </button>
+                Save Preferences
+            </button>
 
         <?php endif; ?>
 
+        <?php if ($current): ?>
+
+            <a
+                href="recommend.php"
+                class="btn btn-secondary"
+            >
+                Find a Roommate
+            </a>
+
+        <?php endif; ?>
     </form>
 
 </div>
