@@ -287,8 +287,8 @@ function selected_if($value, $option)
                 type="submit"
                 class="btn btn-primary"
             >
-                Save Preferences
-            </button>
+            Save Preferences
+        </button>
 
         <?php endif; ?>
 

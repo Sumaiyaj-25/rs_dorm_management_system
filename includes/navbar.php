@@ -42,6 +42,9 @@
             <a href="room_transfer.php">
                 Room Transfer
             </a>
+            <a href="recommend.php">
+                Find a Roommate
+            </a>
 
         <?php elseif (
             isset($_SESSION['role']) &&
