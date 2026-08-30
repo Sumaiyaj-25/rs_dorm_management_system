@@ -219,3 +219,50 @@ CREATE TABLE IF NOT EXISTS mood_log (
         REFERENCES Student(Student_ID)
         ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS moderator (
+    moderator_id INT AUTO_INCREMENT PRIMARY KEY,
+    staff_id INT NOT NULL,
+
+    FOREIGN KEY (staff_id)
+        REFERENCES Staff(Staff_ID)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS academic_resources (
+    resource_id INT AUTO_INCREMENT PRIMARY KEY,
+    resource_type VARCHAR(50) NOT NULL,
+    submitted_by INT NOT NULL,
+    rating DECIMAL(3, 2) DEFAULT 0.00,
+    course_reference VARCHAR(100) NOT NULL,
+    approval_status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    moderator_id INT,
+    file_path VARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (submitted_by)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (moderator_id)
+        REFERENCES moderator(moderator_id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS access_and_rates (
+    rate_id INT AUTO_INCREMENT PRIMARY KEY,
+    resource_id INT NOT NULL,
+    student_id INT NOT NULL,
+    rate_value INT NOT NULL CHECK (rate_value BETWEEN 1 AND 5),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (resource_id)
+        REFERENCES academic_resources(resource_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (student_id)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE,
+
+    UNIQUE KEY uniq_student_resource_rating (resource_id, student_id)
+);
