@@ -43,6 +43,10 @@
                 My Mood
             </a>
 
+            <a href="academic_resources.php">
+                Academic Resources
+            </a>
+
             <a href="room_transfer.php">
                 Room Transfer
             </a>
@@ -92,6 +96,10 @@
 
             <a href="counselor_dashboard.php">
                 Well-Being Alerts
+            </a>
+
+            <a href="moderator_resources.php">
+                Moderator Dashboard
             </a>
 
         <?php endif; ?>
