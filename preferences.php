@@ -292,6 +292,16 @@ function selected_if($value, $option)
 
         <?php endif; ?>
 
+        <?php if ($current): ?>
+
+            <a
+                href="recommend.php"
+                class="btn btn-secondary"
+            >
+                Find a Roommate
+            </a>
+
+        <?php endif; ?>
     </form>
 
 </div>

@@ -2,6 +2,7 @@
 
 require 'includes/session_check.php';
 require 'config/db.php';
+require 'includes/roommate_match.php';
 
 if (
     !isset($_SESSION['role']) ||
@@ -14,13 +15,6 @@ if (
 $message = '';
 $error = '';
 
-
-
-/*
-|--------------------------------------------------------------------------
-| Assign Room
-|--------------------------------------------------------------------------
-*/
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -37,11 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get student information
-        |--------------------------------------------------------------------------
-        */
 
         $stmt = $pdo->prepare(
             'SELECT Student_ID, FirstName, LastName, Gender, Room_No
@@ -64,11 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } else {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Determine allowed dorm
-            |--------------------------------------------------------------------------
-            */
 
             if ($student['Gender'] === 'Female') {
 
@@ -91,11 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             } else {
 
-                /*
-                |--------------------------------------------------------------------------
-                | Check selected room
-                |--------------------------------------------------------------------------
-                */
 
                 $stmt = $pdo->prepare(
                     'SELECT
@@ -142,11 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 } else {
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Assign room
-                    |--------------------------------------------------------------------------
-                    */
 
                     $stmt = $pdo->prepare(
                         'UPDATE Student
@@ -183,12 +157,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-/*
-|--------------------------------------------------------------------------
-| Get students without rooms
-|--------------------------------------------------------------------------
-*/
-
 $stmt = $pdo->query(
     'SELECT
         Student_ID,
@@ -205,12 +173,6 @@ $stmt = $pdo->query(
 $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-
-/*
-|--------------------------------------------------------------------------
-| Get available rooms with occupancy
-|--------------------------------------------------------------------------
-*/
 
 $stmt = $pdo->query(
     'SELECT
@@ -237,6 +199,60 @@ $stmt = $pdo->query(
 
 $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+$student_preferences = [];
+
+$stmt = $pdo->query(
+    'SELECT
+        Student_ID,
+        Cleanliness,
+        NoiseTolerance,
+        StudyHabit,
+        SleepingHabit
+     FROM Preferences'
+);
+
+$preference_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($preference_rows as $pref) {
+
+    $student_preferences[$pref['Student_ID']] = $pref;
+}
+
+
+$room_occupants = [];
+
+$stmt = $pdo->query(
+    'SELECT
+        s.Student_ID,
+        s.FirstName,
+        s.LastName,
+        s.Room_No,
+        p.Cleanliness,
+        p.NoiseTolerance,
+        p.StudyHabit,
+        p.SleepingHabit
+     FROM Student s
+     LEFT JOIN Preferences p
+        ON p.Student_ID = s.Student_ID
+     WHERE s.Room_No IS NOT NULL
+     ORDER BY s.Room_No, s.Student_ID'
+);
+
+$occupant_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($occupant_rows as $occupant) {
+
+    $room_no = $occupant['Room_No'];
+
+    if (!isset($room_occupants[$room_no])) {
+
+        $room_occupants[$room_no] = [];
+    }
+
+    $room_occupants[$room_no][] = $occupant;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -245,21 +261,19 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <head>
 
-```
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Room Assignment - Dorm Management</title>
+    <title>Room Assignment - Dorm Management</title>
 
-<link
-    rel="stylesheet"
-    href="assets/css/style.css"
->
-```
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
 
 </head>
 
@@ -269,53 +283,52 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="page">
 
-```
-<h1>
-    Room Assignment
-</h1>
+    <h1>
+        Room Assignment
+    </h1>
 
-<p class="dashboard-subtitle">
-    Assign rooms to students who do not currently have a room.
-</p>
-
-
-<?php if ($message): ?>
-
-    <p class="alert alert-success">
-        <?= htmlspecialchars($message) ?>
+    <p class="dashboard-subtitle">
+        Assign rooms while considering students' roommate preferences.
     </p>
 
-<?php endif; ?>
 
+    <?php if ($message): ?>
 
-<?php if ($error): ?>
-
-    <p class="alert alert-error">
-        <?= htmlspecialchars($error) ?>
-    </p>
-
-<?php endif; ?>
-
-
-<?php if (empty($students)): ?>
-
-    <div class="request-card">
-
-        <h2>
-            All Students Have Rooms
-        </h2>
-
-        <p>
-            There are currently no students waiting for
-            room assignment.
+        <p class="alert alert-success">
+            <?= htmlspecialchars($message) ?>
         </p>
 
-    </div>
-
-<?php else: ?>
+    <?php endif; ?>
 
 
-    <div class="request-list">
+    <?php if ($error): ?>
+
+        <p class="alert alert-error">
+            <?= htmlspecialchars($error) ?>
+        </p>
+
+    <?php endif; ?>
+
+
+    <?php if (empty($students)): ?>
+
+        <div class="request-card">
+
+            <h2>
+                All Students Have Rooms
+            </h2>
+
+            <p>
+                There are currently no students waiting for
+                room assignment.
+            </p>
+
+        </div>
+
+    <?php else: ?>
+
+
+        <div class="request-list">
 
         <?php foreach ($students as $student): ?>
 
@@ -324,10 +337,12 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="request-header">
 
                     <span>
+
                         Student
                         #<?= htmlspecialchars(
                             $student['Student_ID']
                         ) ?>
+
                     </span>
 
                     <span class="badge badge-category">
@@ -381,6 +396,67 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
 
+                <?php if (
+                    isset($student_preferences[$student['Student_ID']])
+                ): ?>
+
+                    <?php
+                    $my_pref =
+                        $student_preferences[$student['Student_ID']];
+                    ?>
+
+                    <p class="request-desc">
+
+                        <strong>
+                            Roommate Preferences
+                        </strong>
+
+                    </p>
+
+                    <div class="request-meta">
+
+                        <span>
+                            Cleanliness:
+                            <?= htmlspecialchars(
+                                $my_pref['Cleanliness']
+                            ) ?>
+                        </span>
+
+                        <span>
+                            Noise:
+                            <?= htmlspecialchars(
+                                $my_pref['NoiseTolerance']
+                            ) ?>
+                        </span>
+
+                        <span>
+                            Study:
+                            <?= htmlspecialchars(
+                                $my_pref['StudyHabit']
+                            ) ?>
+                        </span>
+
+                        <span>
+                            Sleep:
+                            <?= htmlspecialchars(
+                                $my_pref['SleepingHabit']
+                            ) ?>
+                        </span>
+
+                    </div>
+
+                <?php else: ?>
+
+                    <p class="empty-state">
+
+                        This student has not saved
+                        roommate preferences yet.
+
+                    </p>
+
+                <?php endif; ?>
+
+
                 <form
                     method="POST"
                     style="margin-top: 15px;"
@@ -431,6 +507,70 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             <?php if ($allowed_for_student): ?>
 
+                                <?php
+
+                                $room_score = null;
+
+                                if (
+                                    isset(
+                                        $student_preferences[
+                                            $student['Student_ID']
+                                        ]
+                                    ) &&
+                                    isset(
+                                        $room_occupants[
+                                            $room['Room_No']
+                                        ]
+                                    ) &&
+                                    !empty(
+                                        $room_occupants[
+                                            $room['Room_No']
+                                        ]
+                                    )
+                                ) {
+
+                                    $my_pref =
+                                        $student_preferences[
+                                            $student['Student_ID']
+                                        ];
+
+                                    $total_score = 0;
+                                    $occupant_count = 0;
+
+                                    foreach (
+                                        $room_occupants[
+                                            $room['Room_No']
+                                        ] as $occupant
+                                    ) {
+
+                                        if (
+                                            $occupant['Cleanliness'] !== null
+                                        ) {
+
+                                            $score =
+                                                calculateCompatibility(
+                                                    $my_pref,
+                                                    $occupant
+                                                );
+
+                                            $total_score += $score;
+                                            $occupant_count++;
+                                        }
+                                    }
+
+                                    if ($occupant_count > 0) {
+
+                                        $room_score =
+                                            round(
+                                                $total_score /
+                                                $occupant_count,
+                                                2
+                                            );
+                                    }
+                                }
+
+                                ?>
+
                                 <option
                                     value="<?= htmlspecialchars(
                                         $room['Room_No']
@@ -442,14 +582,12 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     ) ?>
 
                                     -
-
                                     Floor
                                     <?= htmlspecialchars(
                                         $room['Floor']
                                     ) ?>
 
                                     -
-
                                     <?= htmlspecialchars(
                                         $room['Occupancy']
                                     ) ?>
@@ -458,6 +596,28 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <?= htmlspecialchars(
                                         $room['Capacity']
                                     ) ?>
+
+                                    <?php if ($room_score !== null): ?>
+
+                                        -
+                                        <?= htmlspecialchars(
+                                            (string) $room_score
+                                        ) ?>%
+                                        compatible
+
+                                    <?php elseif (
+                                        (int) $room['Occupancy'] === 0
+                                    ): ?>
+
+                                        -
+                                        Empty Room
+
+                                    <?php else: ?>
+
+                                        -
+                                        No Preference Data
+
+                                    <?php endif; ?>
 
                                 </option>
 
@@ -481,15 +641,13 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <?php endforeach; ?>
 
-    </div>
+        </div>
 
 
-<?php endif; ?>
-```
+    <?php endif; ?>
 
 </div>
 
 </body>
 
 </html>
-
