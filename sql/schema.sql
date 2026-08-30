@@ -26,7 +26,25 @@ CREATE TABLE IF NOT EXISTS Student (
         ON DELETE SET NULL
         ON UPDATE CASCADE
 );
+CREATE TABLE IF NOT EXISTS room_transfer_request (
+    Transfer_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Student_ID INT NOT NULL,
+    Current_Room VARCHAR(10) NOT NULL,
+    Requested_Room VARCHAR(10) NOT NULL,
+    Reason TEXT NOT NULL,
+    Status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    DateRequested DATETIME DEFAULT CURRENT_TIMESTAMP,
 
+    FOREIGN KEY (Student_ID)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (Current_Room)
+        REFERENCES Room(Room_No),
+
+    FOREIGN KEY (Requested_Room)
+        REFERENCES Room(Room_No)
+);
 CREATE TABLE IF NOT EXISTS Login (
     Login_ID INT AUTO_INCREMENT PRIMARY KEY,
     Student_ID INT NOT NULL,
