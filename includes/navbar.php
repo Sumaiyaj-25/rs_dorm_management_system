@@ -19,6 +19,10 @@
                 My Parcels
             </a>
 
+            <a href="my_medical_records.php">
+              My Medical Records
+            </a>
+
             <a href="verify_parcel.php">
                 Collect Parcel
             </a>
@@ -37,6 +41,10 @@
             
             <a href="mood_log.php">
                 My Mood
+            </a>
+
+            <a href="academic_resources.php">
+                Academic Resources
             </a>
 
             <a href="room_transfer.php">
@@ -60,6 +68,10 @@
 
             <a href="admin_parcel_list.php">
                 Manage Parcels
+            </a>
+
+            <a href="medical_records.php">
+             Medical Records
             </a>
 
             <a href="admin_maintenance.php">
@@ -90,6 +102,10 @@
 
             <a href="counselor_dashboard.php">
                 Well-Being Alerts
+            </a>
+
+            <a href="moderator_resources.php">
+                Moderator Dashboard
             </a>
 
         <?php endif; ?>
