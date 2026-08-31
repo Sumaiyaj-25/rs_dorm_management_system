@@ -45,7 +45,7 @@
             <a href="recommend.php">
                 Find a Roommate
             </a>
-            <a href="visitor_register.php">
+            <a href="visitor_list.php">
                 My Visitor
             </a>
 
