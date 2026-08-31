@@ -219,6 +219,21 @@ CREATE TABLE IF NOT EXISTS mood_log (
         REFERENCES Student(Student_ID)
         ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS Visitor (
+    Visitor_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Student_ID INT NOT NULL,
+    Visitor_Name VARCHAR(100) NOT NULL,
+    Visitor_Phone VARCHAR(20),
+    Visit_Date DATE NOT NULL,
+    QR_Code VARCHAR(100) NOT NULL UNIQUE,
+    Status VARCHAR(20) DEFAULT 'Pending',
+    Entry_Time DATETIME NULL,
+    Exit_Time DATETIME NULL,
+
+    FOREIGN KEY (Student_ID)
+        REFERENCES Student(Student_ID)
+        ON DELETE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS moderator (
     moderator_id INT AUTO_INCREMENT PRIMARY KEY,

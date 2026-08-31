@@ -53,6 +53,9 @@
             <a href="recommend.php">
                 Find a Roommate
             </a>
+            <a href="visitor_list.php">
+                My Visitor
+            </a>
 
         <?php elseif (
             isset($_SESSION['role']) &&
@@ -80,6 +83,9 @@
 
             <a href="admin_room_assignment.php">
                 Room Assignment
+            </a>
+            <a href="admin_visitor.php">
+                Visitor QR Checking
             </a>
 
             <a href="staff_add.php">
