@@ -1,4 +1,5 @@
 <?php
+
 require 'includes/session_check.php';
 require 'config/db.php';
 
@@ -13,8 +14,15 @@ if (
 $student_id = $_SESSION['student_id'] ?? 0;
 
 $stmt = $pdo->prepare(
-    'SELECT Visitor_ID, Visitor_Name, Visitor_Phone,
-            Visit_Date, QR_Code, Status, Entry_Time, Exit_Time
+    'SELECT
+        Visitor_ID,
+        Visitor_Name,
+        Visitor_Phone,
+        Visit_Date,
+        QR_Code,
+        Status,
+        Entry_Time,
+        Exit_Time
      FROM Visitor
      WHERE Student_ID = ?
      ORDER BY Visitor_ID DESC'
@@ -23,6 +31,7 @@ $stmt = $pdo->prepare(
 $stmt->execute([$student_id]);
 
 $visitors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -31,11 +40,18 @@ $visitors = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>My Visitors - Dorm Management</title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
 
 </head>
 
@@ -45,79 +61,138 @@ $visitors = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="page">
 
-    <h1>My Visitors</h1>
+    <h1>
+        My Visitors
+    </h1>
 
-    <a href="visitor_register.php" class="btn btn-primary">
-        Register New Visitor
+    <p class="dashboard-subtitle">
+        View and manage the visitors you have registered.
+    </p>
+
+    <a
+        href="visitor_register.php"
+        class="btn btn-primary"
+    >
+        Register Visitor
     </a>
 
-    <br><br>
+    <br>
+    <br>
+
 
     <?php if (empty($visitors)): ?>
 
-        <p class="empty-state">
-            You have not registered any visitors yet.
-        </p>
+        <div class="request-card">
+
+            <h2>
+                No Visitors Registered
+            </h2>
+
+            <p>
+                You have not registered any visitors yet.
+            </p>
+
+            <a
+                href="visitor_register.php"
+                class="btn btn-primary"
+            >
+                Register Visitor
+            </a>
+
+        </div>
 
     <?php else: ?>
 
-        <?php foreach ($visitors as $visitor): ?>
+        <div class="request-list">
 
-            <div class="request-card">
+            <?php foreach ($visitors as $visitor): ?>
 
-                <h3>
-                    <?= htmlspecialchars($visitor['Visitor_Name']) ?>
-                </h3>
+                <div class="request-card">
 
-                <p>
-                    Phone:
-                    <?= htmlspecialchars($visitor['Visitor_Phone'] ?? '') ?>
-                </p>
+                    <div class="request-header">
 
-                <p>
-                    Visit Date:
-                    <?= htmlspecialchars($visitor['Visit_Date']) ?>
-                </p>
+                        <h2>
+                            <?= htmlspecialchars(
+                                $visitor['Visitor_Name']
+                            ) ?>
+                        </h2>
 
-                <p>
-                    Status:
-                    <?= htmlspecialchars($visitor['Status']) ?>
-                </p>
+                        <span class="badge badge-category">
+                            <?= htmlspecialchars(
+                                $visitor['Status']
+                            ) ?>
+                        </span>
 
-                <p>
-                    QR Code:
-                    <strong>
-                        <?= htmlspecialchars($visitor['QR_Code']) ?>
-                    </strong>
-                </p>
-                <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?= urlencode($visitor['QR_Code']) ?>"
-                    alt="Visitor QR Code"
-                    width="200"
-                    height="200"
-                >
+                    </div>
 
-                <?php if ($visitor['Entry_Time'] !== null): ?>
 
                     <p>
-                        Entry:
-                        <?= htmlspecialchars($visitor['Entry_Time']) ?>
+                        <strong>Phone:</strong>
+                        <?= htmlspecialchars(
+                            $visitor['Visitor_Phone'] ?? ''
+                        ) ?>
                     </p>
 
-                <?php endif; ?>
-
-                <?php if ($visitor['Exit_Time'] !== null): ?>
 
                     <p>
-                        Exit:
-                        <?= htmlspecialchars($visitor['Exit_Time']) ?>
+                        <strong>Visit Date:</strong>
+                        <?= htmlspecialchars(
+                            $visitor['Visit_Date']
+                        ) ?>
                     </p>
 
-                <?php endif; ?>
 
-            </div>
+                    <p>
+                        <strong>QR Code:</strong>
+                        <?= htmlspecialchars(
+                            $visitor['QR_Code']
+                        ) ?>
+                    </p>
 
-        <?php endforeach; ?>
+
+                    <p>
+                        <strong>Scan QR Code:</strong>
+                    </p>
+
+                    <img
+                        src="<?= htmlspecialchars(
+                            'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' .
+                            rawurlencode($visitor['QR_Code'])
+                        ) ?>"
+                        alt="Scannable QR Code"
+                        width="200"
+                        height="200"
+                    >
+
+
+                    <?php if ($visitor['Entry_Time'] !== null): ?>
+
+                        <p>
+                            <strong>Entry Time:</strong>
+                            <?= htmlspecialchars(
+                                $visitor['Entry_Time']
+                            ) ?>
+                        </p>
+
+                    <?php endif; ?>
+
+
+                    <?php if ($visitor['Exit_Time'] !== null): ?>
+
+                        <p>
+                            <strong>Exit Time:</strong>
+                            <?= htmlspecialchars(
+                                $visitor['Exit_Time']
+                            ) ?>
+                        </p>
+
+                    <?php endif; ?>
+
+                </div>
+
+            <?php endforeach; ?>
+
+        </div>
 
     <?php endif; ?>
 
