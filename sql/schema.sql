@@ -281,3 +281,14 @@ CREATE TABLE IF NOT EXISTS access_and_rates (
 
     UNIQUE KEY uniq_student_resource_rating (resource_id, student_id)
 );
+
+CREATE TABLE SOS_Request (
+    SOS_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Emergency_Type VARCHAR(100) NOT NULL,
+    Request_Time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Status VARCHAR(20) DEFAULT 'Pending',
+    Student_ID INT,
+    Staff_ID INT,
+    FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID),
+    FOREIGN KEY (Staff_ID) REFERENCES Staff(Staff_ID)
+);

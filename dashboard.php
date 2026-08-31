@@ -113,6 +113,23 @@ if ($student_id) {
 
         </div>
 
+        <hr>
+
+<h2>Emergency Assistance (SOS)</h2>
+
+<p>
+    Need urgent help from dorm staff?
+    Send an SOS request immediately.
+</p>
+
+<div class="action-row">
+
+    <a href="my_sos.php" class="btn btn-danger">
+        Send SOS Request
+    </a>
+
+</div>
+
     </div>
 
 </body>
