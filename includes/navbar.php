@@ -58,6 +58,14 @@
                 My Visitor
             </a>
 
+            <a href="laundry_request.php">
+                Laundry Requests
+            </a>
+
+            <a href="exit_clearance.php">
+                Exit Clearance
+            </a>
+
         <?php elseif (
             isset($_SESSION['role']) &&
             $_SESSION['role'] === 'admin'
@@ -108,6 +116,22 @@
 
             <a href="moderator_resources.php">
                 Moderator Dashboard
+            </a>
+
+            <a href="gate_check.php">
+                Gate Check
+            </a>
+            
+            <a href="admin_library.php">
+                Manage Library
+            </a>
+            
+            <a href="admin_accounts.php">
+                Manage Accounts
+            </a>
+
+            <a href="admin_laundry.php">
+                Manage Laundry
             </a>
 
         <?php endif; ?>

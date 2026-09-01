@@ -292,3 +292,43 @@ CREATE TABLE IF NOT EXISTS SOS_Request (
     FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID),
     FOREIGN KEY (Staff_ID) REFERENCES Staff(Staff_ID)
 );
+
+CREATE TABLE IF NOT EXISTS exit_clearance (
+    clearance_id INT AUTO_INCREMENT PRIMARY KEY,
+    clearance_status ENUM('Pending', 'Cleared') DEFAULT 'Pending',
+    cleared_at DATETIME NULL
+);
+
+ALTER TABLE Student ADD COLUMN clearance_id INT NULL;
+ALTER TABLE Student ADD FOREIGN KEY (clearance_id) REFERENCES exit_clearance(clearance_id) ON DELETE SET NULL;
+
+CREATE TABLE IF NOT EXISTS laundry (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    laundry_status VARCHAR(50) DEFAULT 'Pending',
+    item_type VARCHAR(50),
+    owned_by INT NOT NULL,
+    payment_status VARCHAR(20) DEFAULT 'Unpaid',
+    clearance_id INT,
+    FOREIGN KEY (owned_by) REFERENCES Student(Student_ID) ON DELETE CASCADE,
+    FOREIGN KEY (clearance_id) REFERENCES exit_clearance(clearance_id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS library (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    booked_status VARCHAR(50) DEFAULT 'Issued',
+    item_type VARCHAR(50),
+    booked_by INT NOT NULL,
+    clearance_id INT,
+    FOREIGN KEY (booked_by) REFERENCES Student(Student_ID) ON DELETE CASCADE,
+    FOREIGN KEY (clearance_id) REFERENCES exit_clearance(clearance_id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS accounts (
+    invoice_id INT AUTO_INCREMENT PRIMARY KEY,
+    payment_type VARCHAR(50),
+    payment_status VARCHAR(20) DEFAULT 'Unpaid',
+    clearance_id INT,
+    student_id INT NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES Student(Student_ID) ON DELETE CASCADE,
+    FOREIGN KEY (clearance_id) REFERENCES exit_clearance(clearance_id) ON DELETE SET NULL
+);
