@@ -23,6 +23,7 @@
               My Medical Records
             </a>
 
+            
             <a href="verify_parcel.php">
                 Collect Parcel
             </a>
@@ -74,6 +75,7 @@
              Medical Records
             </a>
 
+        
             <a href="admin_maintenance.php">
                 Maintenance
             </a>
