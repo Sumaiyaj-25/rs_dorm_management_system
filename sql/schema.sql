@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS Compatible (
         REFERENCES Student(Student_ID)
 );
 
-CREATE TABLE Medical_Record (
+CREATE TABLE IF NOT EXISTS Medical_Record (
 
     R_ID INT AUTO_INCREMENT PRIMARY KEY,
 
@@ -203,10 +203,10 @@ CREATE TABLE Medical_Record (
     Staff_ID INT,
 
     FOREIGN KEY (Student_ID)
-    REFERENCES Student(Student_ID),
+        REFERENCES Student(Student_ID),
 
     FOREIGN KEY (Staff_ID)
-    REFERENCES Staff(Staff_ID)
+        REFERENCES Staff(Staff_ID)
 
 );
 CREATE TABLE IF NOT EXISTS mood_log (
@@ -282,7 +282,7 @@ CREATE TABLE IF NOT EXISTS access_and_rates (
     UNIQUE KEY uniq_student_resource_rating (resource_id, student_id)
 );
 
-CREATE TABLE SOS_Request (
+CREATE TABLE IF NOT EXISTS SOS_Request (
     SOS_ID INT AUTO_INCREMENT PRIMARY KEY,
     Emergency_Type VARCHAR(100) NOT NULL,
     Request_Time DATETIME DEFAULT CURRENT_TIMESTAMP,
