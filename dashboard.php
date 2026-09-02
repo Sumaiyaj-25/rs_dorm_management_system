@@ -71,10 +71,10 @@ if ($role === 'student' && $student_id) {
 
 
     $stmt = $pdo->prepare(
-        'SELECT mood
+        'SELECT mood_score
          FROM mood_log
-         WHERE Student_ID = ?
-         ORDER BY created_at DESC
+         WHERE student_id = ?
+         ORDER BY log_date DESC
          LIMIT 1'
     );
 
