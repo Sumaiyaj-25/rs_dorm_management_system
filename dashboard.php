@@ -907,39 +907,6 @@ if ($role === 'admin') {
 </div>
 
 
-<hr>
-
-<h2>
-    Recent Notifications
-</h2>
-
-<div class="request-card">
-
-    <div class="request-header">
-
-        <h3>
-            Notifications
-        </h3>
-
-    </div>
-
-    <p class="request-desc">
-        Check your latest updates and requests from the dorm management system.
-    </p>
-
-    <div class="action-row">
-
-        <a
-            href="maintenance_list.php"
-            class="btn btn-secondary"
-        >
-            View Updates
-        </a>
-
-    </div>
-
-</div>
-
 <?php endif; ?>
 
 </div>
