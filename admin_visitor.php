@@ -19,33 +19,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $visitor_id = intval($_POST['visitor_id'] ?? 0);
 
+
     if ($action === 'entry' && $visitor_id > 0) {
 
         $stmt = $pdo->prepare(
-            'UPDATE Visitor
-             SET Entry_Time = NOW(), Status = "Inside"
+            'SELECT Visitor_ID, Visit_Date, Entry_Time, Exit_Time, Status
+             FROM Visitor
              WHERE Visitor_ID = ?'
         );
 
         $stmt->execute([$visitor_id]);
 
-        $message = 'Visitor entry recorded successfully.';
+        $visitor_check = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$visitor_check) {
+
+            $message = 'Visitor not found.';
+
+        } elseif ($visitor_check['Entry_Time']) {
+
+            $message = 'Visitor entry has already been recorded.';
+
+        } elseif ($visitor_check['Visit_Date'] !== date('Y-m-d')) {
+
+            $message = 'Visitor entry is only allowed on the registered visit date.';
+
+        } elseif (date('H:i:s') >= '16:00:00') {
+
+            $message = 'Visitor entry is not allowed after 4:00 PM.';
+
+        } else {
+
+            $stmt = $pdo->prepare(
+                'UPDATE Visitor
+                 SET Entry_Time = NOW(), Status = "Inside"
+                 WHERE Visitor_ID = ?'
+            );
+
+            $stmt->execute([$visitor_id]);
+
+            $message = 'Visitor entry recorded successfully.';
+        }
 
     } elseif ($action === 'exit' && $visitor_id > 0) {
 
         $stmt = $pdo->prepare(
             'UPDATE Visitor
              SET Exit_Time = NOW(), Status = "Exited"
-             WHERE Visitor_ID = ?'
+             WHERE Visitor_ID = ?
+             AND Entry_Time IS NOT NULL
+             AND Exit_Time IS NULL'
         );
 
         $stmt->execute([$visitor_id]);
 
-        $message = 'Visitor exit recorded successfully.';
+        if ($stmt->rowCount() > 0) {
+
+            $message = 'Visitor exit recorded successfully.';
+
+        } else {
+
+            $message = 'Visitor exit could not be recorded.';
+        }
 
     } else {
-
-        /* QR code checking */
 
         $qr_code = trim($_POST['QR_Code'] ?? '');
 
@@ -65,32 +102,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $visitor = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$visitor) {
+
                 $message = 'Visitor not found.';
             }
         }
+    }
+
+    if (
+        isset($_POST['action']) &&
+        isset($_POST['visitor_id'])
+    ) {
+
+        $visitor_id = intval($_POST['visitor_id']);
+
+        $stmt = $pdo->prepare(
+            'SELECT Visitor_ID, Visitor_Name, Visitor_Phone,
+                    Visit_Date, QR_Code, Status,
+                    Entry_Time, Exit_Time,
+                    Student_ID
+             FROM Visitor
+             WHERE Visitor_ID = ?'
+        );
+
+        $stmt->execute([$visitor_id]);
+
+        $visitor = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 
 
 if (
-    isset($_POST['action']) &&
-    isset($_POST['visitor_id'])
+    $visitor &&
+    $visitor['Status'] === 'Inside' &&
+    date('H:i:s') >= '17:00:00'
 ) {
 
-    $visitor_id = intval($_POST['visitor_id']);
-
-    $stmt = $pdo->prepare(
-        'SELECT Visitor_ID, Visitor_Name, Visitor_Phone,
-                Visit_Date, QR_Code, Status,
-                Entry_Time, Exit_Time,
-                Student_ID
-         FROM Visitor
-         WHERE Visitor_ID = ?'
-    );
-
-    $stmt->execute([$visitor_id]);
-
-    $visitor = $stmt->fetch(PDO::FETCH_ASSOC);
+    $message = 'Exit required: this visitor should have exited by 5:00 PM.';
 }
 
 ?>
@@ -189,6 +236,19 @@ if (
                     <?= htmlspecialchars($visitor['Status']) ?>
                 </strong>
             </p>
+
+            <?php if (
+                $visitor['Status'] === 'Inside' &&
+                date('H:i:s') >= '17:00:00'
+            ): ?>
+
+                <p>
+                    <strong>
+                        Exit Required: Visitor must exit by 5:00 PM.
+                    </strong>
+                </p>
+
+            <?php endif; ?>
 
 
             <?php if ($visitor['Entry_Time']): ?>
