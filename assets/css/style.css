@@ -249,6 +249,37 @@ button, .btn {
     background: #fbe9e7;
     color: var(--high) !important;
 }
+/* ---------- Navbar Responsive ---------- */
+
+@media (max-width: 1100px) {
+
+    .navbar {
+        padding: 12px 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .navbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+}
 
 /* ---------- Page layout ---------- */
 .page {
