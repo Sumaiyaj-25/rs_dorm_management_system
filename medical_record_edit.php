@@ -45,45 +45,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
     <title>Edit Medical Record</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
+
 <body>
 
-<?php include 'includes/navbar.php'; ?>
+<div class="page">
 
-<h1>Edit Medical Record</h1>
+    <h1>Edit Medical Record</h1>
 
-<form method="POST">
+    <form method="POST">
 
-    <input type="date"
-           name="visit_date"
-           value="<?= $record['Visit_Date'] ?>"
-           required>
+        <label>
+            Visit Date
+            <input
+                type="date"
+                name="visit_date"
+                value="<?= htmlspecialchars($record['Visit_Date']) ?>"
+                required>
+        </label>
 
-    <br><br>
+        <br><br>
 
-    <input type="text"
-           name="diagnosis"
-           value="<?= $record['Diagnosis'] ?>"
-           required>
+        <label>
+            Diagnosis
+            <input
+                type="text"
+                name="diagnosis"
+                value="<?= htmlspecialchars($record['Diagnosis']) ?>"
+                required>
+        </label>
 
-    <br><br>
+        <br><br>
 
-    <textarea name="treatment"><?= $record['Treatment'] ?></textarea>
+        <label>
+            Treatment
+            <textarea name="treatment"><?= htmlspecialchars($record['Treatment']) ?></textarea>
+        </label>
 
-    <br><br>
+        <br><br>
 
-    <textarea name="prescription"><?= $record['Prescription'] ?></textarea>
+        <label>
+            Prescription
+            <textarea name="prescription"><?= htmlspecialchars($record['Prescription']) ?></textarea>
+        </label>
 
-    <br><br>
+        <br><br>
 
-    <button type="submit">
-        Update Record
-    </button>
+        <button type="submit">
+            Update Record
+        </button>
 
-</form>
+        <a href="medical_records.php">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
 
 </body>
 </html>
