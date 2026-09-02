@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS meal (
     meal_serve_date DATE NOT NULL,
     is_released BOOLEAN DEFAULT FALSE,
     released_by INT NULL, -- The student releasing the meal
-    released_status VARCHAR(20) DEFAULT 'Pending', -- 'Pending', 'Available', 'Claimed'
+    released_status VARCHAR(20) DEFAULT 'Booked', -- 'Booked', 'Available', 'Claimed'
     claim_status BOOLEAN DEFAULT FALSE,
     claimed_by INT NULL, -- The student who claims it
     FOREIGN KEY (student_id) REFERENCES Student(Student_ID) ON DELETE CASCADE,

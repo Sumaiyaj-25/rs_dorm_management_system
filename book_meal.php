@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO meal (meal_type, student_id, meal_serve_date) VALUES (?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO meal (meal_type, student_id, meal_serve_date, released_status) VALUES (?, ?, ?, 'Booked')");
     if ($stmt->execute([$meal_type, $student_id, $meal_serve_date])) {
         header("Location: meals.php?success=Meal+booked+successfully");
     } else {
