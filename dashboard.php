@@ -8,163 +8,83 @@ $first_name = $_SESSION['name'] ?? 'User';
 $student_id = $_SESSION['student_id'] ?? 0;
 
 $requests = [];
-$latest_transfer = null;
-$best_roommate = null;
-$visitors = [];
+$parcel_count = 0;
+$laundry_count = 0;
+$leave_count = 0;
+$mood = null;
 
-if ($role === 'student') {
+if ($role === 'student' && $student_id) {
 
-    require 'includes/roommate_match.php';
+    $stmt = $pdo->prepare(
+        'SELECT
+            RequestID,
+            Description,
+            Category,
+            Priority,
+            Status,
+            Room_No,
+            Dorm_name,
+            DateSubmitted
+         FROM Maintenance_request
+         WHERE Student_ID = ?
+         ORDER BY DateSubmitted DESC
+         LIMIT 3'
+    );
 
-    if ($student_id) {
+    $stmt->execute([$student_id]);
+    $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $stmt = $pdo->prepare(
-            'SELECT RequestID, Description, Category, Priority, Status, Room_No, Dorm_name, DateSubmitted
-             FROM Maintenance_request
-             WHERE Student_ID = ?
-             ORDER BY DateSubmitted DESC'
-        );
 
+
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*)
+         FROM parcel
+         WHERE Student_ID = ?
+         AND Status != "Collected"'
+    );
+
+    $stmt->execute([$student_id]);
+    $parcel_count = (int) $stmt->fetchColumn();
+
+
+
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*)
+         FROM laundry
+         WHERE Student_ID = ?
+         AND laundry_status != "Returned"'
+    );
+
+    $stmt->execute([$student_id]);
+    $laundry_count = (int) $stmt->fetchColumn();
+
+
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*)
+         FROM Leave_Request
+         WHERE Student_ID = ?
+         AND Status = "Pending"'
+    );
+
+    $stmt->execute([$student_id]);
+    $leave_count = (int) $stmt->fetchColumn();
+
+
+    $stmt = $pdo->prepare(
+        'SELECT mood
+         FROM mood_log
+         WHERE Student_ID = ?
+         ORDER BY created_at DESC
+         LIMIT 1'
+    );
+
+    try {
         $stmt->execute([$student_id]);
-        $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    if ($student_id) {
-
-        $stmt = $pdo->prepare(
-            'SELECT
-                Current_Room,
-                Requested_Room,
-                Reason,
-                Status,
-                DateRequested
-             FROM room_transfer_request
-             WHERE Student_ID = ?
-             ORDER BY DateRequested DESC
-             LIMIT 1'
-        );
-
-        $stmt->execute([$student_id]);
-        $latest_transfer = $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    if ($student_id) {
-
-        $stmt = $pdo->prepare(
-            'SELECT
-                Cleanliness,
-                NoiseTolerance,
-                StudyHabit,
-                SleepingHabit
-             FROM preferences
-             WHERE Student_ID = ?'
-        );
-
-        $stmt->execute([$student_id]);
-        $my_pref = $stmt->fetch(PDO::FETCH_ASSOC);
-
-
-        $stmt = $pdo->prepare(
-            'SELECT Gender
-             FROM student
-             WHERE Student_ID = ?'
-        );
-
-        $stmt->execute([$student_id]);
-        $my_student = $stmt->fetch(PDO::FETCH_ASSOC);
-
-
-        if ($my_pref && $my_student) {
-
-            $stmt = $pdo->prepare(
-                'SELECT
-                    s.Student_ID,
-                    s.FirstName,
-                    s.LastName,
-                    s.Department,
-                    s.Gender,
-                    p.Cleanliness,
-                    p.NoiseTolerance,
-                    p.StudyHabit,
-                    p.SleepingHabit
-                 FROM student s
-                 JOIN preferences p
-                   ON p.Student_ID = s.Student_ID
-                 WHERE s.Student_ID <> ?
-                   AND s.Gender = ?
-                   AND NOT EXISTS (
-                        SELECT 1
-                        FROM compatible m
-                        WHERE
-                            (
-                                (m.Requesting_Student_ID = ?
-                                 AND m.Potential_Roommate_ID = s.Student_ID)
-                                OR
-                                (m.Requesting_Student_ID = s.Student_ID
-                                 AND m.Potential_Roommate_ID = ?)
-                            )
-                            AND m.Status IN ("Pending", "Accepted")
-                   )'
-            );
-
-            $stmt->execute([
-                $student_id,
-                $my_student['Gender'],
-                $student_id,
-                $student_id
-            ]);
-
-            $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
-            foreach ($candidates as &$candidate) {
-
-                $candidate['Score'] =
-                    calculateCompatibility(
-                        $my_pref,
-                        $candidate
-                    );
-            }
-
-            unset($candidate);
-
-
-            usort(
-                $candidates,
-                function ($a, $b) {
-                    return $b['Score'] <=> $a['Score'];
-                }
-            );
-
-
-            if (!empty($candidates)) {
-                $best_roommate = $candidates[0];
-            }
-        }
-    }
-
-    if ($student_id) {
-
-        $stmt = $pdo->prepare(
-            'SELECT
-                Visitor_ID,
-                Visitor_Name,
-                Visitor_Phone,
-                Visit_Date,
-                Status,
-                Entry_Time,
-                Exit_Time
-             FROM Visitor
-             WHERE Student_ID = ?
-             ORDER BY Visitor_ID DESC
-             LIMIT 3'
-        );
-
-        $stmt->execute([$student_id]);
-        $visitors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $mood = $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        $mood = null;
     }
 }
-
 
 $admin_counts = [
     'maintenance' => 0,
@@ -209,7 +129,6 @@ if ($role === 'admin') {
         (int) $stmt->fetchColumn();
 
 
-
     $stmt = $pdo->query(
         "SELECT COUNT(*)
          FROM Visitor
@@ -218,6 +137,7 @@ if ($role === 'admin') {
 
     $admin_counts['visitors_inside'] =
         (int) $stmt->fetchColumn();
+
 
     $stmt = $pdo->query(
         "SELECT COUNT(*)
@@ -260,690 +180,362 @@ if ($role === 'admin') {
 ?>
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>
-        Dashboard - Dorm Management
-    </title>
+<title>
+    Dashboard - Dorm Management
+</title>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/style.css"
-    >
+<link
+    rel="stylesheet"
+    href="assets/css/style.css"
+>
 
 </head>
-
 
 <body>
 
 <?php include 'includes/navbar.php'; ?>
 
-
 <div class="page">
-
 
 <?php if ($role === 'admin'): ?>
 
-    <div class="dashboard-header">
+<div class="dashboard-header">
 
-        <div>
+    <div>
 
-            <h1>
-                Hello, <?= htmlspecialchars($first_name) ?>!
-            </h1>
+        <h1>
+            Hello, <?= htmlspecialchars($first_name) ?>!
+        </h1>
 
-            <p class="dashboard-subtitle">
-                Welcome to the Dorm Management admin dashboard.
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <h2>Management Overview</h2>
-
-    <div class="request-card">
-
-        <div class="request-header">
-
-            <h3>
-                Maintenance
-            </h3>
-
-            <span class="badge">
-                <?= $admin_counts['maintenance'] ?>
-                Active
-            </span>
-
-        </div>
-
-        <p class="request-desc">
-            Maintenance requests that are submitted or currently in progress.
+        <p class="dashboard-subtitle">
+            Welcome to the Dorm Management admin dashboard.
         </p>
 
-        <div class="action-row">
+    </div>
 
-            <a
-                href="admin_maintenance.php"
-                class="btn btn-primary"
-            >
-                Manage Maintenance
-            </a>
+</div>
 
-        </div>
+
+<h2>Management Overview</h2>
+
+
+<div class="card-grid">
+    <div class="stat-card">
+
+        <span class="stat-number">
+            <?= $admin_counts['parcels'] ?>
+        </span>
+
+        <span class="stat-label">
+            Pending Parcels
+        </span>
+
+        <a
+            href="admin_parcel_list.php"
+            class="btn btn-secondary"
+        >
+            Manage Parcels
+        </a>
 
     </div>
 
-    <div class="request-card">
 
-        <div class="request-header">
+    <div class="stat-card">
 
-            <h3>
-                Room Transfers
-            </h3>
+        <span class="stat-number">
+            <?= $admin_counts['leave'] ?>
+        </span>
 
-            <span class="badge">
-                <?= $admin_counts['transfers'] ?>
-                Pending
-            </span>
+        <span class="stat-label">
+            Pending Leave Requests
+        </span>
 
-        </div>
-
-        <p class="request-desc">
-            Review student room transfer requests and approve or reject them.
-        </p>
-
-        <div class="action-row">
-
-            <a
-                href="admin_room_transfer.php"
-                class="btn btn-primary"
-            >
-                Manage Room Transfers
-            </a>
-
-        </div>
+        <a
+            href="admin_leave.php"
+            class="btn btn-secondary"
+        >
+            Manage Leave
+        </a>
 
     </div>
 
-    <div class="request-card">
+    <div class="stat-card">
 
-        <div class="request-header">
+        <span class="stat-number">
+            <?= $admin_counts['maintenance'] ?>
+        </span>
 
-            <h3>
-                Visitor Checking
-            </h3>
+        <span class="stat-label">
+            Open Maintenance Tickets
+        </span>
 
-            <span class="badge">
-                <?= $admin_counts['visitors_today'] ?>
-                Today
-            </span>
+        <a
+            href="admin_maintenance.php"
+            class="btn btn-secondary"
+        >
+            Manage Maintenance
+        </a>
 
-        </div>
+    </div>
+    <div class="stat-card">
 
-        <p class="request-desc">
+        <span class="stat-number">
+            —
+        </span>
 
+        <span class="stat-label">
+            Wellbeing Alert Monitor
+        </span>
+
+        <a
+            href="counselor_dashboard.php"
+            class="btn btn-secondary"
+        >
+            View Alerts
+        </a>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span class="stat-number">
+            <?= $admin_counts['visitors_today'] ?>
+        </span>
+
+        <span class="stat-label">
+            Recent Visitor Activity Today
+        </span>
+
+        <p class="empty-state">
             <?= $admin_counts['visitors_inside'] ?>
-            visitor(s) currently inside the dorm.
-
+            currently inside
         </p>
 
-        <div class="action-row">
-
-            <a
-                href="admin_visitor.php"
-                class="btn btn-primary"
-            >
-                Visitor QR Checking
-            </a>
-
-        </div>
+        <a
+            href="admin_visitor.php"
+            class="btn btn-secondary"
+        >
+            Visitor QR
+        </a>
 
     </div>
 
-    <div class="request-card">
 
-        <div class="request-header">
+    <div class="stat-card">
 
-            <h3>
-                Emergency Assistance
-            </h3>
+        <span class="stat-number">
+            <?= $admin_counts['laundry'] ?>
+        </span>
 
-            <span class="badge">
-                <?= $admin_counts['sos'] ?>
-                Active
-            </span>
+        <span class="stat-label">
+            Active Laundry Requests
+        </span>
 
-        </div>
-
-        <p class="request-desc">
-            View and respond to active student SOS requests.
-        </p>
-
-        <div class="action-row">
-
-            <a
-                href="admin_sos.php"
-                class="btn btn-primary"
-            >
-                Manage SOS Requests
-            </a>
-
-        </div>
+        <a
+            href="admin_laundry.php"
+            class="btn btn-secondary"
+        >
+            Manage Laundry
+        </a>
 
     </div>
 
-    <div class="request-card">
 
-        <div class="request-header">
+    <div class="stat-card">
 
-            <h3>
-                Leave Requests
-            </h3>
+        <span class="stat-number">
+            <?= $admin_counts['transfers'] ?>
+        </span>
 
-            <span class="badge">
-                <?= $admin_counts['leave'] ?>
-                Pending
-            </span>
+        <span class="stat-label">
+            Pending Room Transfers
+        </span>
 
-        </div>
-
-        <p class="request-desc">
-            Review and manage student leave requests.
-        </p>
-
-        <div class="action-row">
-
-            <a
-                href="admin_leave.php"
-                class="btn btn-primary"
-            >
-                Manage Leave Requests
-            </a>
-
-        </div>
+        <a
+            href="admin_room_transfer.php"
+            class="btn btn-secondary"
+        >
+            Review Transfers
+        </a>
 
     </div>
 
-    <div class="request-card">
 
-        <div class="request-header">
+    <div class="stat-card stat-warning">
 
-            <h3>
-                Parcels
-            </h3>
+        <span class="stat-number">
+            <?= $admin_counts['sos'] ?>
+        </span>
 
-            <span class="badge">
-                <?= $admin_counts['parcels'] ?>
-                Awaiting Collection
-            </span>
+        <span class="stat-label">
+            Emergency Alerts
+        </span>
 
-        </div>
-
-        <p class="request-desc">
-            View parcels that have not yet been collected by students.
-        </p>
-
-        <div class="action-row">
-
-            <a
-                href="admin_parcel_list.php"
-                class="btn btn-primary"
-            >
-                Manage Parcels
-            </a>
-
-        </div>
+        <a
+            href="admin_sos.php"
+            class="btn btn-secondary"
+        >
+            Manage SOS
+        </a>
 
     </div>
 
-    <div class="request-card">
+</div>
 
-        <div class="request-header">
 
-            <h3>
-                Laundry
-            </h3>
+<hr>
 
-            <span class="badge">
-                <?= $admin_counts['laundry'] ?>
-                Active
-            </span>
 
-        </div>
+<h2>Quick Access</h2>
 
-        <p class="request-desc">
-            Manage student laundry requests and payment status.
-        </p>
+<div class="card-grid">
 
-        <div class="action-row">
 
-            <a
-                href="admin_laundry.php"
-                class="btn btn-primary"
-            >
-                Manage Laundry
-            </a>
+    <div class="stat-card">
 
-        </div>
+        <span class="stat-label">
+            Parcel Management
+        </span>
+
+        <a
+            href="admin_parcel_list.php"
+            class="btn btn-primary"
+        >
+            Open
+        </a>
 
     </div>
 
-    <div class="request-card">
 
-        <div class="request-header">
+    <div class="stat-card">
 
-            <h3>
-                Room Assignment
-            </h3>
+        <span class="stat-label">
+            Leave Management
+        </span>
 
-        </div>
-
-        <p class="request-desc">
-            Manage student room assignments.
-        </p>
-
-        <div class="action-row">
-
-            <a
-                href="admin_room_assignment.php"
-                class="btn btn-primary"
-            >
-                Manage Room Assignment
-            </a>
-
-        </div>
+        <a
+            href="admin_leave.php"
+            class="btn btn-primary"
+        >
+            Open
+        </a>
 
     </div>
 
+
+    <div class="stat-card">
+
+        <span class="stat-label">
+            Maintenance Management
+        </span>
+
+        <a
+            href="admin_maintenance.php"
+            class="btn btn-primary"
+        >
+            Open
+        </a>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span class="stat-label">
+            Laundry Management
+        </span>
+
+        <a
+            href="admin_laundry.php"
+            class="btn btn-primary"
+        >
+            Open
+        </a>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span class="stat-label">
+            Room Assistance
+        </span>
+
+        <a
+            href="admin_room_assignment.php"
+            class="btn btn-primary"
+        >
+            Open
+        </a>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span class="stat-label">
+            Visitor Security
+        </span>
+
+        <a
+            href="admin_visitor.php"
+            class="btn btn-primary"
+        >
+            Open
+        </a>
+
+    </div>
+
+</div>
+```
 
 <?php else: ?>
 
 
-    <div class="dashboard-header">
+<div class="dashboard-header">
 
-        <div>
+    <div>
 
-            <h1>
-                Hello, <?= htmlspecialchars($first_name) ?>!
-            </h1>
+        <h1>
+            Hello, <?= htmlspecialchars($first_name) ?>!
+        </h1>
 
-            <p class="dashboard-subtitle">
-                Welcome to the Dorm Management system.
-            </p>
-
-        </div>
+        <p class="dashboard-subtitle">
+            Welcome to the Dorm Management system.
+        </p>
 
     </div>
 
-
-    <h2>Current Maintenance Updates</h2>
-
-
-    <?php if (empty($requests)): ?>
-
-        <p class="empty-state">
-            You have no maintenance requests yet.
-        </p>
-
-    <?php else: ?>
-
-        <div class="request-list">
-
-            <?php foreach ($requests as $request): ?>
-
-                <div
-                    class="request-card priority-<?= strtolower($request['Priority']) ?>"
-                >
-
-                    <div class="request-header">
-
-                        <span
-                            class="badge badge-priority-<?= strtolower($request['Priority']) ?>"
-                        >
-                            <?= htmlspecialchars($request['Priority']) ?>
-                        </span>
-
-                        <span class="badge badge-category">
-                            <?= htmlspecialchars($request['Category']) ?>
-                        </span>
-
-                        <span
-                            class="badge badge-status-<?= strtolower(
-                                str_replace(
-                                    ' ',
-                                    '-',
-                                    $request['Status']
-                                )
-                            ) ?>"
-                        >
-                            <?= htmlspecialchars($request['Status']) ?>
-                        </span>
-
-                    </div>
+</div>
 
 
-                    <p class="request-desc">
+<div class="request-card">
 
-                        <?= htmlspecialchars(
-                            $request['Description']
-                        ) ?>
+    <div class="request-header">
 
-                    </p>
-
-
-                    <div class="request-meta">
-
-                        <span>
-                            Room:
-                            <?= htmlspecialchars($request['Room_No']) ?>
-                        </span>
-
-                        <span>
-                            <?= htmlspecialchars($request['Dorm_name']) ?>
-                        </span>
-
-                        <span>
-                            <?= htmlspecialchars($request['DateSubmitted']) ?>
-                        </span>
-
-                    </div>
-
-                </div>
-
-            <?php endforeach; ?>
-
-        </div>
-
-    <?php endif; ?>
-
-
-    <div class="action-row">
-
-        <a
-            href="maintenance_submit.php"
-            class="btn btn-primary"
-        >
-            Submit Maintenance Request
-        </a>
-
-        <a
-            href="maintenance_list.php"
-            class="btn btn-secondary"
-        >
-            View All Requests
-        </a>
+        <h3>
+            Emergency SOS
+        </h3>
 
     </div>
 
-
-    <hr>
-
-    <h2>Room Transfer</h2>
-
-
-    <?php if ($latest_transfer): ?>
-
-        <div class="request-card">
-
-            <div class="request-header">
-
-                <span>
-                    Current Room:
-                    <?= htmlspecialchars(
-                        $latest_transfer['Current_Room']
-                    ) ?>
-                </span>
-
-                <span>
-                    Requested Room:
-                    <?= htmlspecialchars(
-                        $latest_transfer['Requested_Room']
-                    ) ?>
-                </span>
-
-                <span class="badge">
-                    <?= htmlspecialchars(
-                        $latest_transfer['Status']
-                    ) ?>
-                </span>
-
-            </div>
-
-
-            <p class="request-desc">
-                <?= htmlspecialchars(
-                    $latest_transfer['Reason']
-                ) ?>
-            </p>
-
-
-            <div class="request-meta">
-
-                <span>
-                    Requested:
-                    <?= htmlspecialchars(
-                        $latest_transfer['DateRequested']
-                    ) ?>
-                </span>
-
-            </div>
-
-        </div>
-
-    <?php else: ?>
-
-        <p class="empty-state">
-            You have no room transfer requests.
-        </p>
-
-    <?php endif; ?>
-
-
-    <div class="action-row">
-
-        <a
-            href="room_transfer.php"
-            class="btn btn-primary"
-        >
-            Room Transfer
-        </a>
-
-    </div>
-
-
-    <hr>
-
-    <h2>Find a Roommate</h2>
-
-
-    <?php if ($best_roommate): ?>
-
-        <div class="request-card">
-
-            <div class="request-header">
-
-                <span class="badge">
-                    <?= htmlspecialchars(
-                        $best_roommate['Score']
-                    ) ?>% Match
-                </span>
-
-            </div>
-
-
-            <p class="request-desc">
-
-                <strong>
-                    <?= htmlspecialchars(
-                        $best_roommate['FirstName'] .
-                        ' ' .
-                        $best_roommate['LastName']
-                    ) ?>
-                </strong>
-
-            </p>
-
-
-            <div class="request-meta">
-
-                <span>
-                    Department:
-                    <?= htmlspecialchars(
-                        $best_roommate['Department']
-                    ) ?>
-                </span>
-
-            </div>
-
-        </div>
-
-    <?php elseif ($my_pref ?? null): ?>
-
-        <p class="empty-state">
-            No compatible roommates are currently available.
-        </p>
-
-    <?php else: ?>
-
-        <p class="empty-state">
-            Set your roommate preferences to find a match.
-        </p>
-
-    <?php endif; ?>
-
-
-    <div class="action-row">
-
-        <a
-            href="recommend.php"
-            class="btn btn-primary"
-        >
-            Find a Roommate
-        </a>
-
-    </div>
-
-
-    <hr>
-
-    <h2>My Visitors</h2>
-
-
-    <?php if (empty($visitors)): ?>
-
-        <p class="empty-state">
-            You have no registered visitors.
-        </p>
-
-    <?php else: ?>
-
-        <div class="request-list">
-
-            <?php foreach ($visitors as $visitor): ?>
-
-                <div class="request-card">
-
-                    <div class="request-header">
-
-                        <strong>
-                            <?= htmlspecialchars(
-                                $visitor['Visitor_Name']
-                            ) ?>
-                        </strong>
-
-                        <span class="badge">
-                            <?= htmlspecialchars(
-                                $visitor['Status']
-                            ) ?>
-                        </span>
-
-                    </div>
-
-
-                    <div class="request-meta">
-
-                        <span>
-                            Visit Date:
-                            <?= htmlspecialchars(
-                                $visitor['Visit_Date']
-                            ) ?>
-                        </span>
-
-
-                        <?php if (!empty($visitor['Entry_Time'])): ?>
-
-                            <span>
-                                Entry:
-                                <?= htmlspecialchars(
-                                    $visitor['Entry_Time']
-                                ) ?>
-                            </span>
-
-                        <?php endif; ?>
-
-
-                        <?php if (!empty($visitor['Exit_Time'])): ?>
-
-                            <span>
-                                Exit:
-                                <?= htmlspecialchars(
-                                    $visitor['Exit_Time']
-                                ) ?>
-                            </span>
-
-                        <?php endif; ?>
-
-                    </div>
-
-                </div>
-
-            <?php endforeach; ?>
-
-        </div>
-
-    <?php endif; ?>
-
-
-    <div class="action-row">
-
-        <a
-            href="visitor_list.php"
-            class="btn btn-primary"
-        >
-            My Visitor
-        </a>
-
-        <a
-            href="visitor_register.php"
-            class="btn btn-secondary"
-        >
-            Register Visitor
-        </a>
-
-    </div>
-
-
-    <hr>
-
-    <h2>Emergency Assistance (SOS)</h2>
-
-
-    <p>
+    <p class="request-desc">
         Need urgent help from dorm staff?
         Send an SOS request immediately.
     </p>
-
 
     <div class="action-row">
 
@@ -956,9 +548,389 @@ if ($role === 'admin') {
 
     </div>
 
+</div>
+
+
+<hr>
+
+
+<h2>
+    Current Maintenance Updates
+</h2>
+
+
+<?php if (empty($requests)): ?>
+
+    <p class="empty-state">
+        You have no maintenance requests yet.
+    </p>
+
+<?php else: ?>
+
+    <div class="request-list">
+
+        <?php foreach ($requests as $request): ?>
+
+            <div
+                class="request-card priority-<?= strtolower($request['Priority']) ?>"
+            >
+
+                <div class="request-header">
+
+                    <span
+                        class="badge badge-priority-<?= strtolower($request['Priority']) ?>"
+                    >
+                        <?= htmlspecialchars($request['Priority']) ?>
+                    </span>
+
+                    <span class="badge badge-category">
+                        <?= htmlspecialchars($request['Category']) ?>
+                    </span>
+
+                    <span
+                        class="badge badge-status-<?= strtolower(
+                            str_replace(
+                                ' ',
+                                '-',
+                                $request['Status']
+                            )
+                        ) ?>"
+                    >
+                        <?= htmlspecialchars($request['Status']) ?>
+                    </span>
+
+                </div>
+
+
+                <p class="request-desc">
+
+                    <?= htmlspecialchars(
+                        $request['Description']
+                    ) ?>
+
+                </p>
+
+
+                <div class="request-meta">
+
+                    <span>
+                        Room:
+                        <?= htmlspecialchars($request['Room_No']) ?>
+                    </span>
+
+                    <span>
+                        <?= htmlspecialchars($request['Dorm_name']) ?>
+                    </span>
+
+                    <span>
+                        <?= htmlspecialchars($request['DateSubmitted']) ?>
+                    </span>
+
+                </div>
+
+            </div>
+
+        <?php endforeach; ?>
+
+    </div>
 
 <?php endif; ?>
 
+
+<div class="action-row">
+
+    <a
+        href="maintenance_submit.php"
+        class="btn btn-primary"
+    >
+        Submit Maintenance Request
+    </a>
+
+    <a
+        href="maintenance_list.php"
+        class="btn btn-secondary"
+    >
+        View All Requests
+    </a>
+
+</div>
+
+
+<hr>
+
+
+<h2>
+    Parcel Status
+</h2>
+
+<div class="request-card">
+
+    <div class="request-header">
+
+        <h3>
+            My Parcels
+        </h3>
+
+        <span class="badge">
+            <?= $parcel_count ?>
+            Pending
+        </span>
+
+    </div>
+
+    <p class="request-desc">
+
+        <?php if ($parcel_count > 0): ?>
+
+            You have parcel(s) waiting for collection.
+
+        <?php else: ?>
+
+            You have no parcels waiting for collection.
+
+        <?php endif; ?>
+
+    </p>
+
+    <div class="action-row">
+
+        <a
+            href="parcel_list.php"
+            class="btn btn-primary"
+        >
+            View My Parcels
+        </a>
+
+    </div>
+
+</div>
+
+
+<hr>
+
+<h2>
+    Laundry Status
+</h2>
+
+<div class="request-card">
+
+    <div class="request-header">
+
+        <h3>
+            My Laundry
+        </h3>
+
+        <span class="badge">
+            <?= $laundry_count ?>
+            Active
+        </span>
+
+    </div>
+
+    <p class="request-desc">
+
+        <?php if ($laundry_count > 0): ?>
+
+            You have active laundry request(s).
+
+        <?php else: ?>
+
+            You have no active laundry requests.
+
+        <?php endif; ?>
+
+    </p>
+
+    <div class="action-row">
+
+        <a
+            href="laundry_request.php"
+            class="btn btn-primary"
+        >
+            Laundry Request
+        </a>
+
+    </div>
+
+</div>
+
+
+<hr>
+
+
+<h2>
+    Leave Request Summary
+</h2>
+
+<div class="request-card">
+
+    <div class="request-header">
+
+        <h3>
+            Leave Requests
+        </h3>
+
+        <span class="badge">
+            <?= $leave_count ?>
+            Pending
+        </span>
+
+    </div>
+
+    <p class="request-desc">
+
+        <?php if ($leave_count > 0): ?>
+
+            You have pending leave request(s).
+
+        <?php else: ?>
+
+            You have no pending leave requests.
+
+        <?php endif; ?>
+
+    </p>
+
+    <div class="action-row">
+
+        <a
+            href="my_leaves.php"
+            class="btn btn-primary"
+        >
+            View Leave Requests
+        </a>
+
+    </div>
+
+</div>
+
+
+<hr>
+
+<h2>
+    Meal Information
+</h2>
+
+<div class="request-card">
+
+    <div class="request-header">
+
+        <h3>
+            Today's Meal Information
+        </h3>
+
+    </div>
+
+    <p class="request-desc">
+        Check the available meal information and meal schedule.
+    </p>
+
+    <div class="action-row">
+
+        <a
+            href="meals.php"
+            class="btn btn-primary"
+        >
+            View Meal Information
+        </a>
+
+    </div>
+
+</div>
+
+
+<hr>
+
+<h2>
+    Mood Check / My Mood
+</h2>
+
+<div class="request-card">
+
+    <div class="request-header">
+
+        <h3>
+            My Mood
+        </h3>
+
+        <?php if ($mood !== null && $mood !== false): ?>
+
+            <span class="badge">
+                <?= htmlspecialchars($mood) ?>
+            </span>
+
+        <?php else: ?>
+
+            <span class="badge">
+                Not logged
+            </span>
+
+        <?php endif; ?>
+
+    </div>
+
+    <p class="request-desc">
+
+        <?php if ($mood !== null && $mood !== false): ?>
+
+            Your latest mood has been recorded.
+
+        <?php else: ?>
+
+            You have not logged your mood yet.
+
+        <?php endif; ?>
+
+    </p>
+
+    <div class="action-row">
+
+        <a
+            href="mood_log.php"
+            class="btn btn-primary"
+        >
+            Check My Mood
+        </a>
+
+    </div>
+
+</div>
+
+
+<hr>
+
+<h2>
+    Recent Notifications
+</h2>
+
+<div class="request-card">
+
+    <div class="request-header">
+
+        <h3>
+            Notifications
+        </h3>
+
+    </div>
+
+    <p class="request-desc">
+        Check your latest updates and requests from the dorm management system.
+    </p>
+
+    <div class="action-row">
+
+        <a
+            href="maintenance_list.php"
+            class="btn btn-secondary"
+        >
+            View Updates
+        </a>
+
+    </div>
+
+</div>
+
+<?php endif; ?>
 
 </div>
 
