@@ -855,9 +855,19 @@ if ($role === 'admin') {
 
         <?php if ($mood !== null && $mood !== false): ?>
 
-            <span class="badge">
-                <?= htmlspecialchars($mood) ?>
-            </span>
+            <?php
+                $mood_labels = [
+                    1 => '😫 Terrible',
+                    2 => '😟 Bad',
+                    3 => '😐 Okay',
+                    4 => '🙂 Good',
+                    5 => '😁 Great'
+                ];
+            ?>
+
+<span class="badge">
+    <?= htmlspecialchars($mood_labels[$mood] ?? $mood) ?>
+</span>
 
         <?php else: ?>
 
