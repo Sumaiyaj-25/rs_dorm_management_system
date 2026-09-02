@@ -64,11 +64,11 @@ $my_claims = $my_claims_stmt->fetchAll();
                 <h2>Book a Meal</h2>
                 <form action="book_meal.php" method="POST" style="margin-top: 10px;">
                     <div style="margin-bottom: 10px;">
-                        <label>Date:</label><br>
+                        <label>Date:</label>
                         <input type="date" name="meal_serve_date" required style="width: 100%; padding: 8px;">
                     </div>
                     <div style="margin-bottom: 10px;">
-                        <label>Meal Type:</label><br>
+                        <label>Meal Type:</label>
                         <select name="meal_type" required style="width: 100%; padding: 8px;">
                             <option value="Breakfast">Breakfast</option>
                             <option value="Lunch">Lunch</option>
