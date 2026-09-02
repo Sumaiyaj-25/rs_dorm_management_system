@@ -244,14 +244,7 @@ CREATE TABLE IF NOT EXISTS Visitor (
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS moderator (
-    moderator_id INT AUTO_INCREMENT PRIMARY KEY,
-    staff_id INT NOT NULL,
 
-    FOREIGN KEY (staff_id)
-        REFERENCES Staff(Staff_ID)
-        ON DELETE CASCADE
-);
 
 CREATE TABLE IF NOT EXISTS academic_resources (
     resource_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -269,7 +262,7 @@ CREATE TABLE IF NOT EXISTS academic_resources (
         ON DELETE CASCADE,
 
     FOREIGN KEY (moderator_id)
-        REFERENCES moderator(moderator_id)
+        REFERENCES Staff(Staff_ID)
         ON DELETE SET NULL
 );
 
