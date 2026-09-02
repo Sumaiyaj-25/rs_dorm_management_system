@@ -10,12 +10,14 @@ session_start();
 
 require 'config/db.php';
 
-if (isset($_SESSION['student_id'])) {
+if (isset($_SESSION['student_id']) || isset($_SESSION['staff_id'])) {
+
     if (($_SESSION['role'] ?? '') === 'admin') {
         header('Location: admin_maintenance.php');
     } else {
         header('Location: dashboard.php');
     }
+
     exit;
 }
 
@@ -28,71 +30,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $emailLower = strtolower($email);
 
+    $isStudent = str_ends_with($emailLower, '@g.bracu.ac.bd');
+    $isAdmin = str_ends_with($emailLower, '@bracu.ac.bd');
+
     if ($email === '' || $password === '') {
 
         $error = 'Please enter both email and password.';
 
-    } elseif (
-        !str_ends_with($emailLower, '@g.bracu.ac.bd') &&
-        !str_ends_with($emailLower, '@bracu.ac.bd')
-    ) {
+    } elseif (!$isStudent && !$isAdmin) {
 
         $error = 'Please enter with your BRACU university mail.';
 
     } else {
 
-        $stmt = $pdo->prepare(
-            'SELECT
-                s.Student_ID,
-                s.FirstName,
-                s.LastName,
-                s.Email,
-                l.PasswordHash
-             FROM student s
-             JOIN login l ON l.Student_ID = s.Student_ID
-             WHERE s.Email = ?'
-        );
+        if ($isStudent) {
 
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = $pdo->prepare(
+                'SELECT
+                    s.Student_ID,
+                    s.FirstName,
+                    s.LastName,
+                    s.Email,
+                    l.PasswordHash
+                 FROM Student s
+                 JOIN Login l ON l.Student_ID = s.Student_ID
+                 WHERE s.Email = ?
+                   AND l.Staff_ID IS NULL'
+            );
 
-        if (!$user) {
+            $stmt->execute([$email]);
 
-            $error = 'Please register first.';
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        } elseif (!password_verify($password, $user['PasswordHash'])) {
+            if (!$user) {
 
-            $error = 'Invalid email or password. Please check your credentials and try again.';
+                $error = 'Please register first.';
+
+            } elseif (!password_verify($password, $user['PasswordHash'])) {
+
+                $error = 'Invalid email or password. Please check your credentials and try again.';
+
+            } else {
+
+                session_regenerate_id(true);
+
+                $_SESSION['student_id'] = $user['Student_ID'];
+                $_SESSION['name'] = $user['FirstName'] . ' ' . $user['LastName'];
+                $_SESSION['first_name'] = $user['FirstName'];
+                $_SESSION['role'] = 'student';
+                $_SESSION['last_activity'] = time();
+
+                $update = $pdo->prepare(
+                    'UPDATE Login
+                     SET LastLogin = NOW()
+                     WHERE Student_ID = ?'
+                );
+
+                $update->execute([$user['Student_ID']]);
+
+                header('Location: dashboard.php');
+                exit;
+            }
 
         } else {
 
-            if (str_ends_with($emailLower, '@g.bracu.ac.bd')) {
-                $role = 'student';
-            } else {
-                $role = 'admin';
-            }
-
-            session_regenerate_id(true);
-
-            $_SESSION['student_id'] = $user['Student_ID'];
-            $_SESSION['name'] = $user['FirstName'] . ' ' . $user['LastName'];
-            $_SESSION['first_name'] = $user['FirstName'];
-            $_SESSION['role'] = $role;
-            $_SESSION['last_activity'] = time();
-
-            $update = $pdo->prepare(
-                'UPDATE login SET LastLogin = NOW() WHERE Student_ID = ?'
+            $stmt = $pdo->prepare(
+                'SELECT
+                    st.Staff_ID,
+                    st.Name,
+                    st.Email,
+                    st.Role,
+                    l.PasswordHash
+                 FROM Staff st
+                 JOIN Login l ON l.Staff_ID = st.Staff_ID
+                 WHERE st.Email = ?
+                   AND l.Student_ID IS NULL'
             );
 
-            $update->execute([$user['Student_ID']]);
+            $stmt->execute([$email]);
 
-            if ($role === 'admin') {
-                header('Location: admin_maintenance.php');
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+
+                $error = 'Please register first.';
+
+            } elseif (!password_verify($password, $user['PasswordHash'])) {
+
+                $error = 'Invalid email or password. Please check your credentials and try again.';
+
             } else {
-                header('Location: dashboard.php');
-            }
 
-            exit;
+                session_regenerate_id(true);
+
+                $_SESSION['staff_id'] = $user['Staff_ID'];
+                $_SESSION['name'] = $user['Name'];
+                $_SESSION['first_name'] = $user['Name'];
+                $_SESSION['role'] = 'admin';
+                $_SESSION['last_activity'] = time();
+
+                $update = $pdo->prepare(
+                    'UPDATE Login
+                     SET LastLogin = NOW()
+                     WHERE Staff_ID = ?'
+                );
+
+                $update->execute([$user['Staff_ID']]);
+
+                header('Location: admin_maintenance.php');
+                exit;
+            }
         }
     }
 }
@@ -100,11 +147,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login - Dorm Management</title>
+
     <link rel="stylesheet" href="assets/css/style.css">
+
 </head>
 
 <body>
@@ -115,7 +168,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <h1>Dorm Management</h1>
 
-            <p class="subtitle">Sign in to continue</p>
+            <p class="subtitle">
+                Sign in to continue
+            </p>
 
             <?php if ($error): ?>
 
@@ -127,6 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <label>
                 Email
+
                 <input
                     type="email"
                     name="email"
@@ -138,6 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <label>
                 Password
+
                 <input
                     type="password"
                     name="password"
@@ -145,10 +202,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 >
             </label>
 
-            <button type="submit">Log In</button>
+            <button type="submit">
+                Log In
+            </button>
 
             <p class="link-row">
-                <a href="register.php">Don't have an account? Register</a>
+
+                <a href="register.php">
+                    Don't have an account? Register
+                </a>
+
             </p>
 
         </form>
@@ -156,4 +219,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
 </body>
+
 </html>
