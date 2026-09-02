@@ -904,9 +904,6 @@ if ($role === 'admin') {
 
     </div>
 
-</div>
-
-
 <?php endif; ?>
 
 </div>
