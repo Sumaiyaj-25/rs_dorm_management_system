@@ -51,7 +51,7 @@ if ($role === 'student' && $student_id) {
     $stmt = $pdo->prepare(
         'SELECT COUNT(*)
          FROM laundry
-         WHERE Student_ID = ?
+         WHERE owned_by = ?
          AND laundry_status != "Returned"'
     );
 
