@@ -341,3 +341,240 @@ CREATE TABLE IF NOT EXISTS accounts (
     FOREIGN KEY (student_id) REFERENCES Student(Student_ID) ON DELETE CASCADE,
     FOREIGN KEY (clearance_id) REFERENCES exit_clearance(clearance_id) ON DELETE SET NULL
 );
+
+-- Room Data
+INSERT INTO room (Room_No, Dorm_name, Floor, Capacity, Status)
+VALUES
+-- Maloncho
+('M-101', 'Maloncho', 1, 4, 'Active'),
+('M-102', 'Maloncho', 1, 4, 'Active'),
+('M-103', 'Maloncho', 1, 4, 'Active'),
+('M-104', 'Maloncho', 1, 4, 'Active'),
+('M-105', 'Maloncho', 1, 4, 'Active'),
+('M-106', 'Maloncho', 1, 4, 'Active'),
+('M-107', 'Maloncho', 1, 4, 'Active'),
+('M-108', 'Maloncho', 1, 4, 'Active'),
+('M-109', 'Maloncho', 1, 4, 'Active'),
+
+('M-201', 'Maloncho', 2, 4, 'Active'),
+('M-202', 'Maloncho', 2, 4, 'Active'),
+('M-203', 'Maloncho', 2, 4, 'Active'),
+('M-204', 'Maloncho', 2, 4, 'Active'),
+('M-205', 'Maloncho', 2, 4, 'Active'),
+('M-206', 'Maloncho', 2, 4, 'Active'),
+('M-207', 'Maloncho', 2, 4, 'Active'),
+('M-208', 'Maloncho', 2, 4, 'Active'),
+('M-209', 'Maloncho', 2, 4, 'Active'),
+
+('M-301', 'Maloncho', 3, 4, 'Active'),
+('M-302', 'Maloncho', 3, 4, 'Active'),
+('M-303', 'Maloncho', 3, 4, 'Active'),
+('M-304', 'Maloncho', 3, 4, 'Active'),
+('M-305', 'Maloncho', 3, 4, 'Active'),
+('M-306', 'Maloncho', 3, 4, 'Active'),
+('M-307', 'Maloncho', 3, 4, 'Active'),
+('M-308', 'Maloncho', 3, 4, 'Active'),
+('M-309', 'Maloncho', 3, 4, 'Active'),
+
+('M-401', 'Maloncho', 4, 4, 'Active'),
+('M-402', 'Maloncho', 4, 4, 'Active'),
+('M-403', 'Maloncho', 4, 4, 'Active'),
+('M-404', 'Maloncho', 4, 4, 'Active'),
+('M-405', 'Maloncho', 4, 4, 'Active'),
+('M-406', 'Maloncho', 4, 4, 'Active'),
+('M-407', 'Maloncho', 4, 4, 'Active'),
+('M-408', 'Maloncho', 4, 4, 'Active'),
+('M-409', 'Maloncho', 4, 4, 'Active'),
+
+('M-501', 'Maloncho', 5, 4, 'Active'),
+('M-502', 'Maloncho', 5, 4, 'Active'),
+('M-503', 'Maloncho', 5, 4, 'Active'),
+('M-504', 'Maloncho', 5, 4, 'Active'),
+('M-505', 'Maloncho', 5, 4, 'Active'),
+('M-506', 'Maloncho', 5, 4, 'Active'),
+('M-507', 'Maloncho', 5, 4, 'Active'),
+('M-508', 'Maloncho', 5, 4, 'Active'),
+('M-509', 'Maloncho', 5, 4, 'Active'),
+
+('M-601', 'Maloncho', 6, 4, 'Active'),
+('M-602', 'Maloncho', 6, 4, 'Active'),
+('M-603', 'Maloncho', 6, 4, 'Active'),
+('M-604', 'Maloncho', 6, 4, 'Active'),
+('M-605', 'Maloncho', 6, 4, 'Active'),
+('M-606', 'Maloncho', 6, 4, 'Active'),
+('M-607', 'Maloncho', 6, 4, 'Active'),
+('M-608', 'Maloncho', 6, 4, 'Active'),
+('M-609', 'Maloncho', 6, 4, 'Active'),
+
+('M-701', 'Maloncho', 7, 4, 'Active'),
+('M-702', 'Maloncho', 7, 4, 'Active'),
+('M-703', 'Maloncho', 7, 4, 'Active'),
+('M-704', 'Maloncho', 7, 4, 'Active'),
+('M-705', 'Maloncho', 7, 4, 'Active'),
+('M-706', 'Maloncho', 7, 4, 'Active'),
+('M-707', 'Maloncho', 7, 4, 'Active'),
+('M-708', 'Maloncho', 7, 4, 'Active'),
+('M-709', 'Maloncho', 7, 4, 'Active'),
+
+('M-801', 'Maloncho', 8, 4, 'Active'),
+('M-802', 'Maloncho', 8, 4, 'Active'),
+('M-803', 'Maloncho', 8, 4, 'Active'),
+('M-804', 'Maloncho', 8, 4, 'Active'),
+('M-805', 'Maloncho', 8, 4, 'Active'),
+('M-806', 'Maloncho', 8, 4, 'Active'),
+('M-807', 'Maloncho', 8, 4, 'Active'),
+('M-808', 'Maloncho', 8, 4, 'Active'),
+('M-809', 'Maloncho', 8, 4, 'Active'),
+
+('M-901', 'Maloncho', 9, 4, 'Active'),
+('M-902', 'Maloncho', 9, 4, 'Active'),
+('M-903', 'Maloncho', 9, 4, 'Active'),
+('M-904', 'Maloncho', 9, 4, 'Active'),
+('M-905', 'Maloncho', 9, 4, 'Active'),
+('M-906', 'Maloncho', 9, 4, 'Active'),
+('M-907', 'Maloncho', 9, 4, 'Active'),
+('M-908', 'Maloncho', 9, 4, 'Active'),
+('M-909', 'Maloncho', 9, 4, 'Active'),
+
+-- Nikunjo
+('N-101', 'Nikunjo', 1, 4, 'Active'),
+('N-102', 'Nikunjo', 1, 4, 'Active'),
+('N-103', 'Nikunjo', 1, 4, 'Active'),
+('N-104', 'Nikunjo', 1, 4, 'Active'),
+('N-105', 'Nikunjo', 1, 4, 'Active'),
+('N-106', 'Nikunjo', 1, 4, 'Active'),
+('N-107', 'Nikunjo', 1, 4, 'Active'),
+('N-108', 'Nikunjo', 1, 4, 'Active'),
+('N-109', 'Nikunjo', 1, 4, 'Active'),
+
+('N-201', 'Nikunjo', 2, 4, 'Active'),
+('N-202', 'Nikunjo', 2, 4, 'Active'),
+('N-203', 'Nikunjo', 2, 4, 'Active'),
+('N-204', 'Nikunjo', 2, 4, 'Active'),
+('N-205', 'Nikunjo', 2, 4, 'Active'),
+('N-206', 'Nikunjo', 2, 4, 'Active'),
+('N-207', 'Nikunjo', 2, 4, 'Active'),
+('N-208', 'Nikunjo', 2, 4, 'Active'),
+('N-209', 'Nikunjo', 2, 4, 'Active'),
+
+('N-301', 'Nikunjo', 3, 4, 'Active'),
+('N-302', 'Nikunjo', 3, 4, 'Active'),
+('N-303', 'Nikunjo', 3, 4, 'Active'),
+('N-304', 'Nikunjo', 3, 4, 'Active'),
+('N-305', 'Nikunjo', 3, 4, 'Active'),
+('N-306', 'Nikunjo', 3, 4, 'Active'),
+('N-307', 'Nikunjo', 3, 4, 'Active'),
+('N-308', 'Nikunjo', 3, 4, 'Active'),
+('N-309', 'Nikunjo', 3, 4, 'Active'),
+
+('N-401', 'Nikunjo', 4, 4, 'Active'),
+('N-402', 'Nikunjo', 4, 4, 'Active'),
+('N-403', 'Nikunjo', 4, 4, 'Active'),
+('N-404', 'Nikunjo', 4, 4, 'Active'),
+('N-405', 'Nikunjo', 4, 4, 'Active'),
+('N-406', 'Nikunjo', 4, 4, 'Active'),
+('N-407', 'Nikunjo', 4, 4, 'Active'),
+('N-408', 'Nikunjo', 4, 4, 'Active'),
+('N-409', 'Nikunjo', 4, 4, 'Active'),
+
+('N-501', 'Nikunjo', 5, 4, 'Active'),
+('N-502', 'Nikunjo', 5, 4, 'Active'),
+('N-503', 'Nikunjo', 5, 4, 'Active'),
+('N-504', 'Nikunjo', 5, 4, 'Active'),
+('N-505', 'Nikunjo', 5, 4, 'Active'),
+('N-506', 'Nikunjo', 5, 4, 'Active'),
+('N-507', 'Nikunjo', 5, 4, 'Active'),
+('N-508', 'Nikunjo', 5, 4, 'Active'),
+('N-509', 'Nikunjo', 5, 4, 'Active'),
+
+('N-601', 'Nikunjo', 6, 4, 'Active'),
+('N-602', 'Nikunjo', 6, 4, 'Active'),
+('N-603', 'Nikunjo', 6, 4, 'Active'),
+('N-604', 'Nikunjo', 6, 4, 'Active'),
+('N-605', 'Nikunjo', 6, 4, 'Active'),
+('N-606', 'Nikunjo', 6, 4, 'Active'),
+('N-607', 'Nikunjo', 6, 4, 'Active'),
+('N-608', 'Nikunjo', 6, 4, 'Active'),
+('N-609', 'Nikunjo', 6, 4, 'Active'),
+
+('N-701', 'Nikunjo', 7, 4, 'Active'),
+('N-702', 'Nikunjo', 7, 4, 'Active'),
+('N-703', 'Nikunjo', 7, 4, 'Active'),
+('N-704', 'Nikunjo', 7, 4, 'Active'),
+('N-705', 'Nikunjo', 7, 4, 'Active'),
+('N-706', 'Nikunjo', 7, 4, 'Active'),
+('N-707', 'Nikunjo', 7, 4, 'Active'),
+('N-708', 'Nikunjo', 7, 4, 'Active'),
+('N-709', 'Nikunjo', 7, 4, 'Active'),
+
+('N-801', 'Nikunjo', 8, 4, 'Active'),
+('N-802', 'Nikunjo', 8, 4, 'Active'),
+('N-803', 'Nikunjo', 8, 4, 'Active'),
+('N-804', 'Nikunjo', 8, 4, 'Active'),
+('N-805', 'Nikunjo', 8, 4, 'Active'),
+('N-806', 'Nikunjo', 8, 4, 'Active'),
+('N-807', 'Nikunjo', 8, 4, 'Active'),
+('N-808', 'Nikunjo', 8, 4, 'Active'),
+('N-809', 'Nikunjo', 8, 4, 'Active'),
+
+('N-901', 'Nikunjo', 9, 4, 'Active'),
+('N-902', 'Nikunjo', 9, 4, 'Active'),
+('N-903', 'Nikunjo', 9, 4, 'Active'),
+('N-904', 'Nikunjo', 9, 4, 'Active'),
+('N-905', 'Nikunjo', 9, 4, 'Active'),
+('N-906', 'Nikunjo', 9, 4, 'Active'),
+('N-907', 'Nikunjo', 9, 4, 'Active'),
+('N-908', 'Nikunjo', 9, 4, 'Active'),
+('N-909', 'Nikunjo', 9, 4, 'Active');
+
+-- Sample Data for Testing Well-Being & Homesickness Alerts
+
+INSERT INTO Student (Student_ID, FirstName, LastName, Email, Room_No) 
+VALUES (1, 'Rakib', 'Hasan', 'rakib.hasan@g.bracu.ac.bd', 'M-101');
+
+INSERT INTO Student (Student_ID, FirstName, LastName, Email, Room_No) 
+VALUES (2, 'Sadia', 'Rahman', 'sadia.rahman@g.bracu.ac.bd', 'M-101');
+
+INSERT INTO Student (Student_ID, FirstName, LastName, Email, Room_No) 
+VALUES (3, 'Nafis', 'Ahmed', 'nafis.ahmed@g.bracu.ac.bd', 'M-101');
+
+INSERT INTO Student (Student_ID, FirstName, LastName, Email, Room_No) 
+VALUES (4, 'Anika', 'Tabassum', 'anika.tabassum@g.bracu.ac.bd', 'M-101');
+
+INSERT INTO Student (Student_ID, FirstName, LastName, Email, Room_No) 
+VALUES (5, 'Tanvir', 'Hossain', 'tanvir.hossain@g.bracu.ac.bd', 'M-101');
+
+INSERT INTO Login (Student_ID, PasswordHash, CreatedAt) 
+VALUES (1, 'hashed_password', DATE_SUB(NOW(), INTERVAL 10 DAY));
+
+INSERT INTO Login (Student_ID, PasswordHash, CreatedAt) 
+VALUES (2, 'hashed_password', DATE_SUB(NOW(), INTERVAL 4 DAY));
+
+INSERT INTO Login (Student_ID, PasswordHash, CreatedAt) 
+VALUES (3, 'hashed_password', DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+INSERT INTO Login (Student_ID, PasswordHash, CreatedAt) 
+VALUES (4, 'hashed_password', DATE_SUB(NOW(), INTERVAL 10 DAY));
+
+INSERT INTO Login (Student_ID, PasswordHash, CreatedAt) 
+VALUES (5, 'hashed_password', DATE_SUB(NOW(), INTERVAL 10 DAY));
+
+INSERT INTO mood_log (student_id, log_date, mood_score) VALUES 
+(1, CURDATE(), 2),
+(1, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1),
+(1, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 2);
+
+INSERT INTO mood_log (student_id, log_date, mood_score) VALUES 
+(5, CURDATE(), 1),
+(5, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1),
+(5, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1);
+
+INSERT INTO mood_log (student_id, log_date, mood_score) VALUES 
+(4, CURDATE(), 5),
+(4, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 4);
+
+INSERT INTO meal (student_id, meal_type, meal_serve_date) VALUES 
+(1, 'Lunch', CURDATE());
+
+INSERT INTO meal (student_id, meal_type, meal_serve_date) VALUES 
+(4, 'Lunch', CURDATE());

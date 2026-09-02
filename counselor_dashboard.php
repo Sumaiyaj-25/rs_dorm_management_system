@@ -27,12 +27,13 @@ $low_mood_students = $low_mood_stmt->fetchAll(PDO::FETCH_ASSOC);
 $missing_meals_query = "
     SELECT s.Student_ID, s.FirstName, s.LastName, s.Email, s.Phone_Number, s.Room_No
     FROM student s
+    JOIN login l ON s.Student_ID = l.Student_ID
     WHERE s.Student_ID NOT IN (
         SELECT DISTINCT student_id 
         FROM meal 
         WHERE meal_serve_date >= DATE_SUB(CURDATE(), INTERVAL 2 DAY)
     )
-    AND s.Student_ID IN (SELECT Student_ID FROM login) -- Only active students
+    AND l.CreatedAt < DATE_SUB(CURDATE(), INTERVAL 2 DAY)
 ";
 $missing_meals_stmt = $pdo->query($missing_meals_query);
 $missing_meals_students = $missing_meals_stmt->fetchAll(PDO::FETCH_ASSOC);
