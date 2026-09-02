@@ -45,9 +45,25 @@ CREATE TABLE IF NOT EXISTS room_transfer_request (
     FOREIGN KEY (Requested_Room)
         REFERENCES Room(Room_No)
 );
+CREATE TABLE IF NOT EXISTS Staff (
+
+    Staff_ID INT AUTO_INCREMENT PRIMARY KEY,
+
+    Name VARCHAR(100) NOT NULL,
+
+    Phone_Number VARCHAR(20),
+
+    Email VARCHAR(100) UNIQUE,
+
+    Role VARCHAR(50)
+);
+
 CREATE TABLE IF NOT EXISTS Login (
     Login_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Student_ID INT NOT NULL,
+
+    Student_ID INT NULL,
+    Staff_ID INT NULL,
+
     PasswordHash VARCHAR(255) NOT NULL,
     LastLogin DATETIME NULL,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -56,7 +72,12 @@ CREATE TABLE IF NOT EXISTS Login (
         REFERENCES Student(Student_ID)
         ON DELETE CASCADE,
 
-    UNIQUE KEY uniq_student_login (Student_ID)
+    FOREIGN KEY (Staff_ID)
+        REFERENCES Staff(Staff_ID)
+        ON DELETE CASCADE,
+
+    UNIQUE KEY uniq_student_login (Student_ID),
+    UNIQUE KEY uniq_staff_login (Staff_ID)
 );
 
 CREATE TABLE IF NOT EXISTS Parcel (
@@ -117,18 +138,6 @@ CREATE TABLE IF NOT EXISTS meal (
     FOREIGN KEY (claimed_by) REFERENCES Student(Student_ID) ON DELETE SET NULL
 );
 
-CREATE TABLE IF NOT EXISTS Staff (
-
-    Staff_ID INT AUTO_INCREMENT PRIMARY KEY,
-
-    Name VARCHAR(100) NOT NULL,
-
-    Phone_Number VARCHAR(20),
-
-    Email VARCHAR(100) UNIQUE,
-
-    Role VARCHAR(50)
-);
 CREATE TABLE IF NOT EXISTS Preferences (
     PreferenceID INT AUTO_INCREMENT PRIMARY KEY,
     Student_ID INT NOT NULL,
