@@ -21,8 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['res
         $status = ($action === 'approve') ? 'Approved' : 'Rejected';
         
         try {
-            $update_stmt = $pdo->prepare("UPDATE academic_resources SET approval_status = ? WHERE resource_id = ?");
-            if ($update_stmt->execute([$status, $resource_id])) {
+            $staff_id = $_SESSION['staff_id'];
+            $update_stmt = $pdo->prepare("UPDATE academic_resources SET approval_status = ?, moderator_id = ? WHERE resource_id = ?");
+            if ($update_stmt->execute([$status, $staff_id, $resource_id])) {
                 $message = "Resource has been " . strtolower($status) . ".";
             } else {
                 $error = "Failed to update resource status.";
