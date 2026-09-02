@@ -27,9 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $error = 'Please use a valid BRAC University email address (@g.bracu.ac.bd or @bracu.ac.bd).';
 
-    } elseif (strlen($password) < 6) {
-
-        $error = 'Password must be at least 6 characters long.';
+    } elseif (strlen($password) < 8) {
+        $error = 'Password must be at least 8 characters long.';
+    } elseif (!preg_match('/[A-Z]/', $password)) {
+        $error = 'Password must contain at least one uppercase letter.';
+    } elseif (!preg_match('/[a-z]/', $password)) {
+        $error = 'Password must contain at least one lowercase letter.';
+    } elseif (!preg_match('/[^A-Za-z0-9]/', $password)) {
+        $error = 'Password must contain at least one special character.';
 
     } else {
 
@@ -255,8 +260,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     type="password"
                     name="password"
                     required
-                    minlength="6"
+                    minlength="8"
+                    pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}"
+                    title="Password must be at least 8 characters and contain uppercase, lowercase, and special characters."
                 >
+                <small>
+                    Password must be at least 8 characters and contain an uppercase letter,
+                    a lowercase letter, and a special character.
+                </small>
             </label>
 
             <button type="submit">
