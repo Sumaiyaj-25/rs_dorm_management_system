@@ -92,13 +92,10 @@
                 Visitor QR Checking
             </a>
 
-            <a href="staff_add.php">
-                Add Staff
-            </a>
-
-            <a href="staff_list.php">
+            <a href="staff_management.php">
                 Manage Staff
             </a>
+
 
             <a href="admin_leave.php">
                 Manage Leave Requests
