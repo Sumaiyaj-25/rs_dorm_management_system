@@ -23,25 +23,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $message = 'Please enter the visitor name and visit date.';
 
+    } elseif ($visit_date < date('Y-m-d')) {
+
+        $message = 'Visit date cannot be in the past.';
+
     } else {
+        $week_start = date('Y-m-d', strtotime('monday this week'));
+        $week_end = date('Y-m-d', strtotime('sunday this week'));
 
-        $qr_code = uniqid('VISITOR_');
-
-        $stmt = $pdo->prepare(
-            'INSERT INTO Visitor
-            (Student_ID, Visitor_Name, Visitor_Phone, Visit_Date, QR_Code)
-            VALUES (?, ?, ?, ?, ?)'
+        $count_stmt = $pdo->prepare(
+            'SELECT COUNT(*)
+             FROM Visitor
+             WHERE Student_ID = ?
+             AND Visit_Date BETWEEN ? AND ?'
         );
 
-        $stmt->execute([
+        $count_stmt->execute([
             $student_id,
-            $visitor_name,
-            $visitor_phone,
-            $visit_date,
-            $qr_code
+            $week_start,
+            $week_end
         ]);
 
-        $message = 'Visitor registered successfully. QR Code: ' . $qr_code;
+        $visitor_count = (int) $count_stmt->fetchColumn();
+
+        if ($visitor_count >= 3) {
+
+            $message = 'You can register a maximum of 3 visitors per week.';
+
+        } else {
+
+            $qr_code = uniqid('VISITOR_');
+
+            $stmt = $pdo->prepare(
+                'INSERT INTO Visitor
+                (Student_ID, Visitor_Name, Visitor_Phone, Visit_Date, QR_Code)
+                VALUES (?, ?, ?, ?, ?)'
+            );
+
+            $stmt->execute([
+                $student_id,
+                $visitor_name,
+                $visitor_phone,
+                $visit_date,
+                $qr_code
+            ]);
+
+            $message = 'Visitor registered successfully. QR Code: ' . $qr_code;
+        }
     }
 }
 ?>
